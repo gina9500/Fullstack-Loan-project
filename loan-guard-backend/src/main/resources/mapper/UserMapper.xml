@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.loanguard.backend.mapper.UserMapper">
+    <select id="findByUsername" resultType="com.loanguard.backend.model.User">
+        SELECT * FROM user WHERE username = #{username}
+    </select>
+    
+    <select id="findById" resultType="com.loanguard.backend.model.User">
+        SELECT * FROM user WHERE id = #{id}
+    </select>
+    
+    <insert id="insert" parameterType="com.loanguard.backend.model.User">
+        INSERT INTO user (username, password, email, phone, role, status, create_time, update_time)
+        VALUES (#{username}, #{password}, #{email}, #{phone}, #{role}, #{status}, NOW(), NOW())
+    </insert>
+    
+    <update id="update" parameterType="com.loanguard.backend.model.User">
+        UPDATE user 
+        SET password = #{password}, email = #{email}, phone = #{phone}, status = #{status}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+</mapper>

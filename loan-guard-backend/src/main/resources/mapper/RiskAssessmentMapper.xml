@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.loanguard.backend.mapper.RiskAssessmentMapper">
+    <insert id="insert" parameterType="com.loanguard.backend.model.RiskAssessment">
+        INSERT INTO risk_assessment 
+        (application_id, application_type, risk_level, assessment_details, suggestions, assessor_id, assess_time)
+        VALUES 
+        (#{applicationId}, #{applicationType}, #{riskLevel}, #{assessmentDetails}, #{suggestions}, #{assessorId}, NOW())
+    </insert>
+    
+    <update id="update" parameterType="com.loanguard.backend.model.RiskAssessment">
+        UPDATE risk_assessment 
+        SET risk_level = #{riskLevel}, assessment_details = #{assessmentDetails}, 
+            suggestions = #{suggestions}, assessor_id = #{assessorId}, assess_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <select id="findByApplicationIdAndType" resultType="com.loanguard.backend.model.RiskAssessment">
+        SELECT * FROM risk_assessment 
+        WHERE application_id = #{applicationId} AND application_type = #{applicationType}
+    </select>
+</mapper>

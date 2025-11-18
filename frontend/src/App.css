@@ -1,0 +1,48 @@
+/* 贷款应用程序的全局样式 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f5f7fa;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 确保页面内容不会被导航栏遮挡 */
+.page-content {
+  flex: 1;
+  padding: 20px;
+}
+
+/* 通用按钮样式 */
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* 通用链接样式 */
+a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .page-content {
+    padding: 15px;
+  }
+}

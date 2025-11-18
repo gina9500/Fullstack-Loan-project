@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.loanguard.backend.mapper.CorporationLoanApplicationMapper">
+    <insert id="insert" parameterType="com.loanguard.backend.model.CorporationLoanApplication">
+        INSERT INTO corporation_loan_application 
+        (user_id, company_name, business_license, company_email, company_address, account_bank, 
+         account_no, loan_amount, loan_term, loan_purpose, property_type, property_documents, 
+         industry_category, status, create_time, update_time)
+        VALUES 
+        (#{userId}, #{companyName}, #{businessLicense}, #{companyEmail}, #{companyAddress}, #{accountBank}, 
+         #{accountNo}, #{loanAmount}, #{loanTerm}, #{loanPurpose}, #{propertyType}, #{propertyDocuments}, 
+         #{industryCategory}, #{status}, NOW(), NOW())
+    </insert>
+    
+    <update id="update" parameterType="com.loanguard.backend.model.CorporationLoanApplication">
+        UPDATE corporation_loan_application 
+        SET company_name = #{companyName}, business_license = #{businessLicense}, company_email = #{companyEmail}, 
+            company_address = #{companyAddress}, account_bank = #{accountBank}, account_no = #{accountNo}, 
+            loan_amount = #{loanAmount}, loan_term = #{loanTerm}, loan_purpose = #{loanPurpose}, 
+            property_type = #{propertyType}, property_documents = #{propertyDocuments}, 
+            industry_category = #{industryCategory}, status = #{status}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <select id="findById" resultType="com.loanguard.backend.model.CorporationLoanApplication">
+        SELECT * FROM corporation_loan_application WHERE id = #{id}
+    </select>
+    
+    <select id="findByUserId" resultType="com.loanguard.backend.model.CorporationLoanApplication">
+        SELECT * FROM corporation_loan_application WHERE user_id = #{userId}
+    </select>
+    
+    <select id="findAll" resultType="com.loanguard.backend.model.CorporationLoanApplication">
+        SELECT * FROM corporation_loan_application
+    </select>
+</mapper>

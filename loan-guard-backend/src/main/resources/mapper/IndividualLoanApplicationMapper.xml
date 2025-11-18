@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.loanguard.backend.mapper.IndividualLoanApplicationMapper">
+    <insert id="insert" parameterType="com.loanguard.backend.model.IndividualLoanApplication">
+        INSERT INTO individual_loan_application 
+        (user_id, name, id_number, phone, email, address, occupation, income, loan_amount, loan_term, 
+         loan_purpose, property_type, property_documents, status, create_time, update_time)
+        VALUES 
+        (#{userId}, #{name}, #{idNumber}, #{phone}, #{email}, #{address}, #{occupation}, #{income}, 
+         #{loanAmount}, #{loanTerm}, #{loanPurpose}, #{propertyType}, #{propertyDocuments}, #{status}, NOW(), NOW())
+    </insert>
+    
+    <update id="update" parameterType="com.loanguard.backend.model.IndividualLoanApplication">
+        UPDATE individual_loan_application 
+        SET name = #{name}, id_number = #{idNumber}, phone = #{phone}, email = #{email}, address = #{address}, 
+            occupation = #{occupation}, income = #{income}, loan_amount = #{loanAmount}, loan_term = #{loanTerm}, 
+            loan_purpose = #{loanPurpose}, property_type = #{propertyType}, property_documents = #{propertyDocuments}, 
+            status = #{status}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <select id="findById" resultType="com.loanguard.backend.model.IndividualLoanApplication">
+        SELECT * FROM individual_loan_application WHERE id = #{id}
+    </select>
+    
+    <select id="findByUserId" resultType="com.loanguard.backend.model.IndividualLoanApplication">
+        SELECT * FROM individual_loan_application WHERE user_id = #{userId}
+    </select>
+    
+    <select id="findAll" resultType="com.loanguard.backend.model.IndividualLoanApplication">
+        SELECT * FROM individual_loan_application
+    </select>
+</mapper>

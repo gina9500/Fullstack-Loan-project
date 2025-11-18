@@ -1,0 +1,33 @@
+/* 个人贷款申请页面样式 */
+/* 确保body占满整个视口 */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f2f5;
+}
+
+.application-container {
+  width: 600px;
+  max-width: 100%;
+  min-height: 200px;
+  padding: 40px;
+  background-color: white;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.application-title {
+  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.application-message {
+  color: #666;
+  font-size: 16px;
+}
