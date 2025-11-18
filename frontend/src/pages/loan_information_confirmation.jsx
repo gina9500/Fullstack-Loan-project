@@ -9,37 +9,54 @@ const LoanInformationConfirmation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [chartType, setChartType] = useState('同比'); // 同比或环比
 
   useEffect(() => {
     // 从localStorage获取申请信息
-    const savedData = localStorage.getItem('loanApplication');
+    const savedData = localStorage.getItem('corporationLoanData');
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
         setApplicationData(parsedData);
       } catch (err) {
         console.error('解析申请数据失败:', err);
-        setError('获取申请信息失败，请重新提交申请');
+        // 如果解析失败，使用默认数据
+        setDefaultData();
       }
     } else {
-      setError('未找到申请信息，请先提交贷款申请');
+      // 如果localStorage中没有数据，使用默认数据
+      setDefaultData();
     }
     setIsLoading(false);
   }, []);
+
+  // 设置默认mock数据
+  const setDefaultData = () => {
+    const defaultData = {
+      // entName: "ABC Corporation",
+      // uscc: "91110000MA007XXXX",
+      // companyEmail: "contact@abccorp.com",
+      // companyAddress: "北京市朝阳区建国路88号",
+      // repayAccountBank: "中国建设银行",
+      // repayAccountNo: "6227 0000 1111 2222",
+      // loanAmount: "5000000",
+      // loanTerm: "36个月",
+      // loanPurpose: "企业扩张",
+      // propertyProofType: "房产抵押",
+      // propertyProofDocument: true,
+      // industryCategory: "科技行业"
+    };
+    setApplicationData(defaultData);
+  };
 
   const handleConfirm = async () => {
     setIsSubmitting(true);
     
     try {
-      // 使用申请ID进行确认
-      const response = await confirmLoanApplication(applicationData.id || 'default-id');
-      if (response.success) {
-        // 保存确认后的信息，然后跳转到结果页面
-        localStorage.setItem('loanResult', JSON.stringify(response.data));
+      // 由于没有后端API，直接跳转到结果页面
+      setTimeout(() => {
         window.location.href = '/loan-result';
-      } else {
-        alert('确认申请失败：' + response.message);
-      }
+      }, 1000);
     } catch (err) {
       console.error('确认申请出错:', err);
       alert('网络错误，请稍后重试');
@@ -48,17 +65,24 @@ const LoanInformationConfirmation = () => {
     }
   };
 
-  const handleEdit = () => {
-    // 根据贷款类型返回相应的申请页面
-    const loanType = applicationData?.type || 'individual';
-    window.location.href = loanType === 'corporate' ? 
-      '/corporation-loan-application' : 
-      '/individual-loan-application';
+  const handleBack = () => {
+    // 返回企业贷款申请页面
+    window.location.href = '/corporation-loan-application';
   };
+
+  // 模拟财务数据
+  const financialData = [
+    { month: '2023.01', value: 4000 },
+    { month: '2023.02', value: 4200 },
+    { month: '2023.03', value: 4100 },
+    { month: '2023.04', value: 4300 },
+    { month: '2023.05', value: 4400 },
+    { month: '2023.06', value: 4600 },
+  ];
 
   if (isLoading) {
     return (
-      <BaseLayout title="贷款信息确认">
+      <BaseLayout title="Loan Information Confirmation">
         <div className="loading">加载中...</div>
       </BaseLayout>
     );
@@ -66,7 +90,7 @@ const LoanInformationConfirmation = () => {
 
   if (error || !applicationData) {
     return (
-      <BaseLayout title="贷款信息确认">
+      <BaseLayout title="Loan Information Confirmation">
         <div className="error-message">
           {error || '申请信息不存在'}
           <button onClick={() => window.location.href = '/'}>返回首页</button>
@@ -75,206 +99,172 @@ const LoanInformationConfirmation = () => {
     );
   }
 
-  // 根据贷款类型渲染不同的确认信息
-  const isCorporateLoan = applicationData.type === 'corporate';
-
   return (
-    <BaseLayout title="贷款信息确认">
+    <BaseLayout title="Loan Information Confirmation">
       <div className="loan-information-confirmation">
-        <h2>贷款申请信息确认</h2>
+        <div className="page-title">企业确认画面</div>
+        <h2>Loan Information Confirmation</h2>
+        
+        {/* 贷款类型标识 */}
+        <div className="loan-type-indicator">
+          <span className="loan-type">Corporation Loan</span>
+          <div className="underline"></div>
+        </div>
         
         <div className="confirmation-card">
-          {isCorporateLoan ? (
-            // 企业贷款信息
-            <>
-              <div className="info-section">
-                <h3>企业基本信息</h3>
-                <div className="info-grid">
-                  <div className="info-item">
-                    <span className="label">公司名称：</span>
-                    <span className="value">{applicationData.companyName || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">营业执照号：</span>
-                    <span className="value">{applicationData.businessLicenseNo || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">经营地址：</span>
-                    <span className="value">{applicationData.businessAddress || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">法人姓名：</span>
-                    <span className="value">{applicationData.legalPersonName || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">法人身份证号：</span>
-                    <span className="value">{applicationData.legalPersonId || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">成立年份：</span>
-                    <span className="value">{applicationData.establishmentYear || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">所属行业：</span>
-                    <span className="value">{applicationData.industry || '-'}</span>
-                  </div>
-                </div>
+          {/* 企业贷款信息 - 表单样式 */}
+          <div className="form-style">
+            <div className="form-row">
+              <div className="form-field">
+                <label>Company Name</label>
+                <div className="form-value">{applicationData.entName || '-'}</div>
               </div>
-            </>
-          ) : (
-            // 个人贷款信息
-            <>
-              <div className="info-section">
-                <h3>个人基本信息</h3>
-                <div className="info-grid">
-                  <div className="info-item">
-                    <span className="label">姓名：</span>
-                    <span className="value">{applicationData.name || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">身份证号：</span>
-                    <span className="value">{applicationData.idNumber || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">手机号码：</span>
-                    <span className="value">{applicationData.phoneNumber || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">居住地址：</span>
-                    <span className="value">{applicationData.address || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">年龄：</span>
-                    <span className="value">{applicationData.age || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">婚姻状况：</span>
-                    <span className="value">{applicationData.maritalStatus || '-'}</span>
-                  </div>
-                </div>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-field">
+                <label>Uscc</label>
+                <div className="form-value">{applicationData.uscc || '-'}</div>
               </div>
-              
-              <div className="info-section">
-                <h3>工作信息</h3>
-                <div className="info-grid">
-                  <div className="info-item">
-                    <span className="label">工作单位：</span>
-                    <span className="value">{applicationData.employer || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">职位：</span>
-                    <span className="value">{applicationData.position || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">工作年限：</span>
-                    <span className="value">{applicationData.workYears || '-'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">月收入：</span>
-                    <span className="value">{applicationData.monthlyIncome || '-'}</span>
-                  </div>
-                </div>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-field">
+                <label>Company Email</label>
+                <div className="form-value">{applicationData.companyEmail || '-'}</div>
               </div>
-            </>
-          )}
-
-          <div className="info-section">
-            <h3>贷款信息</h3>
-            <div className="info-grid">
-              <div className="info-item">
-                <span className="label">贷款金额：</span>
-                <span className="value">{applicationData.loanAmount || '-'} 元</span>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-field">
+                <label>Company Address</label>
+                <div className="form-value">{applicationData.companyAddress || '-'}</div>
               </div>
-              <div className="info-item">
-                <span className="label">贷款期限：</span>
-                <span className="value">{applicationData.loanTerm || '-'} 个月</span>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-field">
+                <label>Repay Account Bank</label>
+                <div className="form-value">{applicationData.repayAccountBank || '-'}</div>
               </div>
-              <div className="info-item">
-                <span className="label">贷款用途：</span>
-                <span className="value">{applicationData.loanPurpose || '-'}</span>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-field">
+                <label>Repay Account No</label>
+                <div className="form-value">{applicationData.repayAccountNo || '-'}</div>
               </div>
-              {isCorporateLoan && (
-                <>
-                  <div className="info-item">
-                    <span className="label">月均收入：</span>
-                    <span className="value">{applicationData.monthlyRevenue || '-'} 元</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">财务状况：</span>
-                    <span className="value">{applicationData.financialStatus || '-'}</span>
-                  </div>
-                </>
-              )}
-              <div className="info-item">
-                <span className="label">抵押物类型：</span>
-                <span className="value">{applicationData.collateralType || '-'}</span>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-field">
+                <label>Loan Amount</label>
+                <div className="form-value">{applicationData.loanAmount || '-'}</div>
+              </div>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-field">
+                <label>Loan Term</label>
+                <div className="form-value">{applicationData.loanTerm || '-'}</div>
+              </div>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-field">
+                <label>Loan Purpose</label>
+                <div className="form-value">{applicationData.loanPurpose || '-'}</div>
+              </div>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-field">
+                <label>Property Proof Type</label>
+                <div className="form-value">{applicationData.propertyProofType || '-'}</div>
+              </div>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-field">
+                <label>Property Proof Document</label>
+                <div className="form-value">{applicationData.propertyProofDocument ? '文件已上传' : '-'}</div>
+              </div>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-field">
+                <label>Industry Category</label>
+                <div className="form-value">{applicationData.industryCategory || '-'}</div>
               </div>
             </div>
           </div>
-
-          <div className="info-section">
-            <h3>材料信息</h3>
-            <div className="info-grid">
-              {isCorporateLoan ? (
-                <>
-                  <div className="info-item">
-                    <span className="label">营业执照：</span>
-                    <span className="value">已上传</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">财务报表：</span>
-                    <span className="value">已上传</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">税务证明：</span>
-                    <span className="value">已上传</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="info-item">
-                    <span className="label">身份证正面：</span>
-                    <span className="value">已上传</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">身份证反面：</span>
-                    <span className="value">已上传</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">收入证明：</span>
-                    <span className="value">已上传</span>
-                  </div>
-                </>
-              )}
+        </div>
+        
+        {/* 财务数据图表部分
+        <div className="financial-chart-section">
+          <h3>
+            财务数据图表 <span>预测值</span>
+          </h3>
+          <div className="chart-container">
+            <div className="mock-chart">
+              <div className="chart-header">累计金额</div>
+              <div className="chart-bars">
+                {financialData.map((item, index) => {
+                  // 计算柱子高度，最大值为100%
+                  const maxValue = Math.max(...financialData.map(d => d.value));
+                  const height = (item.value / maxValue) * 100;
+                  
+                  return (
+                    <div key={index} className="bar-group">
+                      <div 
+                        className="bar" 
+                        style={{ height: `${height}%` }}
+                      ></div>
+                      <div className="bar-label">{item.month}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="chart-legend">
+                <label>
+                  <input 
+                    type="radio" 
+                    name="chartType" 
+                    value="同比" 
+                    checked={chartType === '同比'} 
+                    onChange={(e) => setChartType(e.target.value)} 
+                  />
+                  同比
+                </label>
+                <label>
+                  <input 
+                    type="radio" 
+                    name="chartType" 
+                    value="环比" 
+                    checked={chartType === '环比'} 
+                    onChange={(e) => setChartType(e.target.value)} 
+                  />
+                  环比
+                </label>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="confirmation-note">
-          <h4>确认说明：</h4>
-          <ul>
-            <li>请仔细核对上述信息，确保准确无误</li>
-            <li>提交确认后，系统将进行贷款风险评估</li>
-            <li>评估结果将在短时间内通过页面展示</li>
-            <li>如有信息错误，请点击"修改"按钮返回修改</li>
-          </ul>
-        </div>
-
+        </div> */}
+        
+        {/* 按钮区域 */}
         <div className="form-actions">
           <button 
-            type="button" 
-            className="edit-button"
-            onClick={handleEdit}
+            className="back-button"
+            onClick={handleBack}
           >
-            修改
+            back
           </button>
           <button 
-            type="button" 
             className="confirm-button"
             onClick={handleConfirm}
             disabled={isSubmitting}
           >
-            {isSubmitting ? '确认中...' : '确认提交'}
+            confirm
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-// Corporation Loan Application Page
+// 企业贷款申请页面
 import React, { useState } from 'react';
 import BaseLayout from '../components/layout/BaseLayout';
 import InputField from '../components/form/InputField';
@@ -99,17 +99,47 @@ const CorporationLoanApplication = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await submitCorporationLoan(formData);
-      if (response.success) {
+      // 由于没有后端API，直接保存表单数据到localStorage并跳转到确认页面
+      const serializableData = {
+        entName: formData.entName,
+        uscc: formData.uscc,
+        companyEmail: formData.companyEmail,
+        companyAddress: formData.companyAddress,
+        repayAccountBank: formData.repayAccountBank,
+        repayAccountNo: formData.repayAccountNo,
+        loanAmount: formData.loanAmount,
+        loanTerm: formData.loanTerm,
+        loanPurpose: formData.loanPurpose,
+        propProofType: formData.propProofType,
+        industryCategory: formData.industryCategory
+      };
+      
+      // 保存表单数据到localStorage供确认页面使用
+      localStorage.setItem('loanApplication', JSON.stringify(serializableData));
+      
+      // 直接跳转到确认页面
+      window.location.href = '/loan-information-confirmation';
+      
+      /*
+      // 以下是原有的API调用代码，暂时注释掉
+      // 模拟提交成功
+      const response = await submitCorporationLoan(serializableData);
+      // if (response.success) {
+      if (true) {
         // Save application info to localStorage for confirmation page
-        localStorage.setItem('loanApplication', JSON.stringify(response.data));
+        // localStorage.setItem('loanApplication', JSON.stringify(response.data));
         window.location.href = '/loan-information-confirmation';
       } else {
         alert('Application submission failed: ' + response.message);
       }
+      */
     } catch (error) {
+      console.error('Error during submission process:', error);
+      alert('An error occurred, please try again');
+      /*
       console.error('Error submitting application:', error);
       alert('Network error, please try again later');
+      */
     } finally {
       setIsSubmitting(false);
     }
@@ -124,9 +154,9 @@ const CorporationLoanApplication = () => {
 
   // Industry category options
   const industryCategoryOptions = [
-    { value: 'agriculture', label: 'Agriculture, Forestry, Animal Husbandry, Fishery' },
-    { value: 'chemical', label: 'Basic Chemicals' },
-    { value: 'nonbanking', label: 'Non-Banking Finance' }
+    { value: 'agriculture', label: '农林牧渔' },
+    { value: 'chemical', label: '基础化工' },
+    { value: 'nonbanking', label: '非银金融' }
   ];
 
   // Loan term options
@@ -143,9 +173,9 @@ const CorporationLoanApplication = () => {
 
   // Loan purpose options
   const loanPurposeOptions = [
-    { value: 'credit', label: 'Credit Loan' },
-    { value: 'mortgage', label: 'Mortgage Loan' },
-    { value: 'tax', label: 'Tax Loan' }
+    { value: 'credit', label: '信用贷款' },
+    { value: 'mortgage', label: '抵押贷款' },
+    { value: 'tax', label: '税贷' }
   ];
 
   // 根据贷款用途获取财产证明类型选项
@@ -153,23 +183,23 @@ const CorporationLoanApplication = () => {
     switch (formData.loanPurpose) {
       case 'credit':
         return [
-          { value: 'business_license', label: 'Business License' },
-          { value: 'financial_report', label: 'Financial Report' },
-          { value: 'credit_report', label: 'Enterprise Credit Report' },
-          { value: 'tax_payment', label: 'Tax Payment Certificate' },
-          { value: 'bank_flow', label: 'Bank Flow' }
+          { value: 'business_license', label: '营业执照' },
+          { value: 'financial_report', label: '财务报表' },
+          { value: 'credit_report', label: '企业信用报告' },
+          { value: 'tax_payment', label: '纳税证明' },
+          { value: 'bank_flow', label: '银行流水' }
         ];
       case 'mortgage':
         return [
-          { value: 'house_property', label: 'House Property Certificate' },
-          { value: 'land_use', label: 'Land Use Certificate' },
-          { value: 'vehicle_registration', label: 'Vehicle Registration' },
-          { value: 'equipment_property', label: 'Equipment Property Certificate' }
+          { value: 'house_property', label: '房产证' },
+          { value: 'land_use', label: '土地使用权证' },
+          { value: 'vehicle_registration', label: '车辆登记证' },
+          { value: 'equipment_property', label: '设备产权证明' }
         ];
       case 'tax':
         return [
-          { value: 'tax_return', label: 'Tax Return Form' },
-          { value: 'tax_certificate', label: 'Tax Certificate' }
+          { value: 'tax_return', label: '纳税申报表' },
+          { value: 'tax_certificate', label: '纳税凭证' }
         ];
       default:
         return [];
@@ -178,9 +208,9 @@ const CorporationLoanApplication = () => {
   
   // Bank options for repayment account
   const bankOptions = [
-    { value: 'bank_of_china', label: 'Bank of China' },
-    { value: 'icbc', label: 'Industrial and Commercial Bank of China' },
-    { value: 'cmb', label: 'China Merchants Bank' }
+    { value: 'bank_of_china', label: '中国银行' },
+    { value: 'icbc', label: '工商银行' },
+    { value: 'cmb', label: '招商银行' }
   ];
 
   return (
@@ -201,7 +231,7 @@ const CorporationLoanApplication = () => {
                 placeholder="Enter company name"
               />
               <InputField
-                label="Unified Social Credit Code"
+                label="Uscc"
                 name="uscc"
                 value={formData.uscc}
                 onChange={handleChange}
@@ -240,6 +270,7 @@ const CorporationLoanApplication = () => {
                 options={bankOptions}
                 error={errors.repayAccountBank}
                 required
+                placeholder="Please select your repay account!"
               />
               <InputField
                 label="Account No"
@@ -275,6 +306,7 @@ const CorporationLoanApplication = () => {
                 options={loanTermOptions}
                 error={errors.loanTerm}
                 required
+                placeholder="Please select your Loan Term!"
               />
             </div>
             <div className="form-row">
@@ -293,6 +325,7 @@ const CorporationLoanApplication = () => {
                 options={loanPurposeOptions}
                 error={errors.loanPurpose}
                 required
+                placeholder="Please choose your loan Purpose!"
               />
             </div>
             <div className="form-row">
@@ -301,10 +334,11 @@ const CorporationLoanApplication = () => {
                 name="propProofType"
                 value={formData.propProofType}
                 onChange={handleChange}
-                options={getPropertyProofOptions()}
+                options={formData.loanPurpose ? getPropertyProofOptions() : []}
                 error={errors.propProofType}
                 required
                 disabled={!formData.loanPurpose}
+                placeholder="***Please Select*** ***Unsecured Loan*** ***Property Proof Type***"  
               />
             </div>
             <div className="form-row">
@@ -314,6 +348,7 @@ const CorporationLoanApplication = () => {
                 onChange={(file) => handleFileChange('propProofDocs', file)}
                 error={errors.propProofDocs}
                 required
+                placeholder="Please upload your property proof document!"
               />
             </div>
             <div className="form-row">
@@ -324,6 +359,7 @@ const CorporationLoanApplication = () => {
                 onChange={handleChange}
                 options={industryCategoryOptions}
                 error={errors.industryCategory}
+                placeholder="Please choose your Industry Category!"
               />
             </div>
           </div>

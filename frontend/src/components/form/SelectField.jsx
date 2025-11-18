@@ -10,7 +10,8 @@ const SelectField = ({
   onChange, 
   options, 
   error, 
-  required = false 
+  required = false,
+  placeholder = 'Please select'
 }) => {
   return (
     <div className="select-field">
@@ -25,7 +26,9 @@ const SelectField = ({
         onChange={onChange}
         className={error ? 'error' : ''}
       >
-        <option value="">Please select</option>
+        {options.length > 0 && (
+          <option value="">{placeholder}</option>
+        )}
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -49,7 +52,8 @@ SelectField.propTypes = {
     })
   ).isRequired,
   error: PropTypes.string,
-  required: PropTypes.bool
+  required: PropTypes.bool,
+  placeholder: PropTypes.string
 };
 
 export default SelectField;
