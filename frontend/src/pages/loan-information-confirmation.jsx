@@ -30,25 +30,29 @@ const LoanInformationConfirmation = () => {
     setIsLoading(false);
   }, []);
 
-  // 设置默认mock数据
+  // 设置默认mock数据。测试用
   const setDefaultData = () => {
     const defaultData = {
-      // entName: "ABC Corporation",
-      // uscc: "91110000MA007XXXX",
-      // companyEmail: "contact@abccorp.com",
-      // companyAddress: "北京市朝阳区建国路88号",
-      // repayAccountBank: "中国建设银行",
-      // repayAccountNo: "6227 0000 1111 2222",
-      // loanAmount: "5000000",
-      // loanTerm: "36个月",
-      // loanPurpose: "企业扩张",
-      // propertyProofType: "房产抵押",
-      // propertyProofDocument: true,
-      // industryCategory: "科技行业"
+      entName: "",
+      uscc: "",
+      companyEmail: "",
+      companyAddress: "",
+      repayAccountBank: "",
+      repayAccountNo: "",
+      loanAmount: "",
+      loanTerm: "",
+      loanPurpose: "",
+      propertyProofType: "",
+      propertyProofDocument: true,
+      industryCategory: ""
     };
     setApplicationData(defaultData);
   };
 
+   /**
+   * 处理确认提交
+   * 模拟API调用后跳转到结果页面
+   */
   const handleConfirm = async () => {
     setIsSubmitting(true);
     
@@ -70,15 +74,15 @@ const LoanInformationConfirmation = () => {
     window.location.href = '/corporation-loan-application';
   };
 
-  // 模拟财务数据
-  const financialData = [
-    { month: '2023.01', value: 4000 },
-    { month: '2023.02', value: 4200 },
-    { month: '2023.03', value: 4100 },
-    { month: '2023.04', value: 4300 },
-    { month: '2023.05', value: 4400 },
-    { month: '2023.06', value: 4600 },
-  ];
+  // // 模拟财务数据
+  // const financialData = [
+  //   { month: '2023.01', value: 4000 },
+  //   { month: '2023.02', value: 4200 },
+  //   { month: '2023.03', value: 4100 },
+  //   { month: '2023.04', value: 4300 },
+  //   { month: '2023.05', value: 4400 },
+  //   { month: '2023.06', value: 4600 },
+  // ];
 
   if (isLoading) {
     return (
@@ -99,6 +103,7 @@ const LoanInformationConfirmation = () => {
     );
   }
 
+  // 组件渲染
   return (
     <BaseLayout title="Loan Information Confirmation">
       <div className="loan-information-confirmation">
@@ -251,7 +256,7 @@ const LoanInformationConfirmation = () => {
           </div>
         </div> */}
         
-        {/* 按钮区域 */}
+        {/* 按钮 */}
         <div className="form-actions">
           <button 
             className="back-button"

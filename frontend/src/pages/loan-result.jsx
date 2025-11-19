@@ -6,13 +6,14 @@ import './loan-result.css';
 const LoanResult = () => {
   // 处理重新评估按钮点击事件
   const handleReEvaluation = () => {
-    // 更新跳转路径为中划线命名的页面
+
     window.location.href = '/corporation-loan-application';
     
     // 记录需要保留的数据标记
     localStorage.setItem('retainData', 'true');
   };
 
+  // 组件渲染
   return (
     <BaseLayout title="Loan Decision Notification">
       <div className="loan-result">

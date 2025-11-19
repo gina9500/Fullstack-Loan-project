@@ -7,36 +7,47 @@ import FileUploadField from '../components/form/FileUploadField';
 import { submitCorporationLoan } from '../api/loan';
 import './corporation-loan-application.css';
 
+/**
+ * 企业贷款申请组件
+ * 负责处理企业贷款申请表单的所有功能，数据收集、验证和提交
+ */
 const CorporationLoanApplication = () => {
-  // 保持原文件内容不变...
+  
+  // 表单数据初始化所有表单字段为默认值
   const [formData, setFormData] = useState({
-    entName: '',
-    uscc: '',
-    companyEmail: '',
-    companyAddress: '',
-    repayAccountBank: '',
-    repayAccountNo: '',
-    loanAmount: '',
-    loanTerm: '',
-    loanPurpose: '',
-    propProofType: '',
-    industryCategory: '',
-    businessLicenseFile: null,
-    financialReportFile: null,
-    taxCertificateFile: null,
-    propProofDocs: null
+    entName: '',            // 企业名称
+    uscc: '',               // 统一社会信用代码
+    companyEmail: '',       // 企业邮箱
+    companyAddress: '',     // 企业地址
+    repayAccountBank: '',   // 还款账户银行
+    repayAccountNo: '',     // 还款账户号码
+    loanAmount: '',         // 贷款金额
+    loanTerm: '',           // 贷款期限
+    loanPurpose: '',        // 贷款用途
+    propProofType: '',      // 财产证明类型
+    industryCategory: '',   // 行业类别
+    businessLicenseFile: null,      // 营业执照文件
+    financialReportFile: null,      // 财务报表文件
+    taxCertificateFile: null,       // 税务证明文件
+    propProofDocs: null             // 财产证明文件
   });
 
+  // 表单验证错误信息状态管理
   const [errors, setErrors] = useState({});
+  // 表单提交状态 - 用于显示提交中的加载状态
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+    /**
+   * 处理表单输入变化
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
+  
+    // 当用户修改输入字段时更新表单数据，并清除对应字段的错误信息
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -45,6 +56,9 @@ const CorporationLoanApplication = () => {
     }
   };
 
+  /**
+   * 处理文件上传
+   */
   const handleFileChange = (name, file) => {
     setFormData(prev => ({
       ...prev,
@@ -58,25 +72,28 @@ const CorporationLoanApplication = () => {
     }
   };
 
+   /**
+   * 表单验证函数
+   * 验证所有必填字段和格式要求，设置错误信息并返回验证结果
+   */
   const validateForm = () => {
     const newErrors = {};
     
-    // Required fields validation
+    // 必填字段验证
     if (!formData.entName.trim()) newErrors.entName = 'Company name is required';
     if (!formData.uscc.trim()) newErrors.uscc = 'Unified Social Credit Code is required';
     if (!formData.companyEmail.trim()) newErrors.companyEmail = 'Company email is required';
     if (!formData.repayAccountBank) newErrors.repayAccountBank = 'Please select your repay account bank';
     if (!formData.repayAccountNo.trim()) newErrors.repayAccountNo = 'Account number is required';
-    // Validate account number is 19 digits
+    // 验证账户号码为19位数字
     if (formData.repayAccountNo && !/^\d{19}$/.test(formData.repayAccountNo)) {
       newErrors.repayAccountNo = 'Account number must be 19 digits';
     }
-    // Validate email format
+    // 验证邮箱格式
     if (formData.companyEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.companyEmail)) {
       newErrors.companyEmail = 'Please enter a valid email address';
     }
-    
-    // Loan information validation
+    // 贷款信息验证
     if (!formData.loanAmount.trim()) newErrors.loanAmount = 'Loan amount is required';
     if (formData.loanAmount && (!/^\d+(\.\d{1,2})?$/.test(formData.loanAmount) || parseFloat(formData.loanAmount) <= 0)) {
       newErrors.loanAmount = 'Please enter a valid positive number';
@@ -86,10 +103,14 @@ const CorporationLoanApplication = () => {
     if (!formData.propProofType) newErrors.propProofType = 'Property proof type is required';
     if (!formData.propProofDocs) newErrors.propProofDocs = 'Property proof document is required';
 
+    // 如果没有错误，返回true表示验证通过
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+    /**
+   * 处理表单提交
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -100,7 +121,7 @@ const CorporationLoanApplication = () => {
     setIsSubmitting(true);
     
     try {
-      // 由于没有后端API，直接保存表单数据到localStorage并跳转到确认页面
+      // 由于没有后端API，模拟保存表单数据到localStorage并跳转到确认页面
       const serializableData = {
         entName: formData.entName,
         uscc: formData.uscc,
@@ -115,10 +136,9 @@ const CorporationLoanApplication = () => {
         industryCategory: formData.industryCategory
       };
       
-      // 保存表单数据到localStorage供确认页面使用
       localStorage.setItem('loanApplication', JSON.stringify(serializableData));
       
-      // 直接跳转到确认页面
+      // 跳转到确认页面
       window.location.href = '/loan-information-confirmation';
       
       /*
@@ -137,10 +157,6 @@ const CorporationLoanApplication = () => {
     } catch (error) {
       console.error('Error during submission process:', error);
       alert('An error occurred, please try again');
-      /*
-      console.error('Error submitting application:', error);
-      alert('Network error, please try again later');
-      */
     } finally {
       setIsSubmitting(false);
     }
@@ -153,14 +169,14 @@ const CorporationLoanApplication = () => {
     yearOptions.push({ value: year, label: year.toString() });
   }
 
-  // Industry category options
+  // 行业类别选项
   const industryCategoryOptions = [
     { value: 'agriculture', label: '农林牧渔' },
     { value: 'chemical', label: '基础化工' },
     { value: 'nonbanking', label: '非银金融' }
   ];
 
-  // Loan term options
+  // 贷款期限选项
   const loanTermOptions = [
     { value: '6', label: '6 months' },
     { value: '12', label: '1 year' },
@@ -172,7 +188,7 @@ const CorporationLoanApplication = () => {
     { value: '360', label: '30 years' }
   ];
 
-  // Loan purpose options
+  // 贷款用途选项
   const loanPurposeOptions = [
     { value: 'credit', label: '信用贷款' },
     { value: 'mortgage', label: '抵押贷款' },
@@ -207,18 +223,20 @@ const CorporationLoanApplication = () => {
     }
   };
   
-  // Bank options for repayment account
+  // 还款账户银行选项
   const bankOptions = [
     { value: 'bank_of_china', label: '中国银行' },
     { value: 'icbc', label: '工商银行' },
     { value: 'cmb', label: '招商银行' }
   ];
 
+  // 组件渲染
   return (
     <BaseLayout title="Corporation Loan Application">
       <div className="corporation-loan-application">
         <h2>Corporation Loan Application</h2>
         <form onSubmit={handleSubmit}>
+          {/* 基本信息部分 */}
           <div className="form-section">
             <h3>Basic Information</h3>
             <div className="form-row">
@@ -285,7 +303,7 @@ const CorporationLoanApplication = () => {
             </div>
           </div>
 
-          {/* Loan Information Section */}
+          {/* 贷款信息部分 */}
           <div className="form-section">
             <h3>Loan Information</h3>
             <div className="form-row">
@@ -317,7 +335,6 @@ const CorporationLoanApplication = () => {
                 value={formData.loanPurpose}
                 onChange={(e) => {
                   handleChange(e);
-                  // Reset property proof type when loan purpose changes
                   setFormData(prev => ({
                     ...prev,
                     propProofType: ''
@@ -364,8 +381,6 @@ const CorporationLoanApplication = () => {
               />
             </div>
           </div>
-
-          {/* Document upload section removed as per requirements */}
 
           <div className="form-actions">
             <button 
