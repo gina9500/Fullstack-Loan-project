@@ -6,6 +6,7 @@ import CorporationLoanApplication from '../pages/corporation-loan-application';
 import LoanInformationConfirmation from '../pages/loan-information-confirmation';
 import LoanResult from '../pages/loan-result';
 
+// 路由配置
 const AppRoutes = () => {
   return (
     <Router>

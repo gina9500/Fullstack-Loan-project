@@ -1,4 +1,4 @@
-// HTTP请求工具函数
+// HTTP请求工具
 import config from '../config/env';
 
 /**
