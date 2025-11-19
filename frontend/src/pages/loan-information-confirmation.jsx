@@ -9,7 +9,7 @@ const LoanInformationConfirmation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [chartType, setChartType] = useState('同比'); // 同比或环比
+  const [chartType, setChartType] = useState('同比');
 
   useEffect(() => {
     // 从localStorage获取申请信息

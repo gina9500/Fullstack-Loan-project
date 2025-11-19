@@ -65,9 +65,9 @@ const Login = () => {
       // 在开发环境中跳过实际API调用，直接进行页面跳转
       // const response = await login(formData);
       
-      if (formData.userId.toLowerCase().includes('ind')) {
+      if (formData.userId.toLowerCase().includes('per')) {
         // 个人贷款申请页面
-        navigate('/individual-loan-application');
+        navigate('/personal-loan-application');
       } else {
         // 企业贷款申请页面
         navigate('/corporation-loan-application');
@@ -76,7 +76,7 @@ const Login = () => {
       // 即使API调用失败，也尝试根据用户名进行跳转（用于开发测试）
       console.error('登录API调用失败:', error);
       if (formData.userId.toLowerCase().includes('ind')) {
-        navigate('/individual-loan-application');
+        navigate('/personal-loan-application');
       } else {
         navigate('/corporation-loan-application');
       }

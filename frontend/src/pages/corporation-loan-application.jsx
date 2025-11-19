@@ -8,6 +8,7 @@ import { submitCorporationLoan } from '../api/loan';
 import './corporation-loan-application.css';
 
 const CorporationLoanApplication = () => {
+  // 保持原文件内容不变...
   const [formData, setFormData] = useState({
     entName: '',
     uscc: '',

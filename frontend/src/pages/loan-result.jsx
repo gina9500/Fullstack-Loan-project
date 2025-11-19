@@ -6,7 +6,7 @@ import './loan-result.css';
 const LoanResult = () => {
   // 处理重新评估按钮点击事件
   const handleReEvaluation = () => {
-    // 跳转到企业人力页面，这里使用企业贷款申请页面作为替代
+    // 更新跳转路径为中划线命名的页面
     window.location.href = '/corporation-loan-application';
     
     // 记录需要保留的数据标记

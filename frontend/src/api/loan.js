@@ -6,8 +6,8 @@ import { post, get } from '../utils/request';
  * @param {Object} applicationData - 申请数据
  * @returns {Promise} - 返回Promise对象
  */
-export async function submitIndividualLoan(applicationData) {
-  return post('/loan/individual/submit', applicationData);
+export async function submitPersonalLoan(applicationData) {
+  return post('/loan/personal/submit', applicationData);
 }
 
 /**
