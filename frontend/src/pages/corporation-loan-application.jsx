@@ -1,4 +1,4 @@
-// 企业贷款申请页面
+// 企业入力页面
 import React, { useState } from 'react';
 import BaseLayout from '../components/layout/BaseLayout';
 import InputField from '../components/form/InputField';
@@ -8,7 +8,7 @@ import { submitCorporationLoan } from '../api/loan';
 import './corporation-loan-application.css';
 
 /**
- * 企业贷款申请组件
+ * 企业入力页面组件
  * 负责处理企业贷款申请表单的所有功能，数据收集、验证和提交
  */
 const CorporationLoanApplication = () => {

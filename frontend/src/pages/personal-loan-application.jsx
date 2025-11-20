@@ -1,4 +1,4 @@
-// 个人贷款申请页面
+// 个人入力页面
 import React from 'react';
 import BaseLayout from '../components/layout/BaseLayout';
 import './personal-loan-application.css';

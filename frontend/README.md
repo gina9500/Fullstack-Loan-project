@@ -39,18 +39,18 @@
 
 ## 6.页面
 
-login 登录页面
-personal-loan-application 个人贷款申请页面
-corporation-loan-application 企业贷款申请页面
-loan-information-confirmation 贷款信息确认页面
-loan-result 贷款结果页面
+login ------------------------------------登录页面
+personal-loan-application ----------------个人入力页面
+corporation-loan-application -------------企业入力页面
+loan-information-confirmation ----------- 贷款信息确认页面
+loan-result ------------------------------贷款风险评估结果页面
 
 ## 7.核心 API 接口
 
-submitPersonalLoan(applicationData): 提交个人贷款申请
+Login：登录
 submitCorporationLoan(applicationData): 提交企业贷款申请
 checkDataIntegrity(data): 检查数据完整性
-confirmLoanApplication(applicationId): 确认贷款申请
+confirmLoanApplication(applicationId): 确认贷款风险
 
 ## 8.项目编译启动
 
