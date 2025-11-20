@@ -10,24 +10,52 @@ body {
   background-color: #f0f2f5;
 }
 
+/* 个人贷款申请页面样式 */
 .application-container {
-  width: 600px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 600px;
   min-height: 200px;
   padding: 40px;
   background-color: white;
   border-radius: 8px;
   text-align: center;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .application-title {
   color: #333;
   font-size: 28px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-top: 40px;
+  line-height: 1.2;
 }
 
-.application-message {
-  color: #666;
-  font-size: 16px;
+
+/* 响应式调整 */
+@media (max-width: 480px) {
+  .application-container {
+    padding: 20px 15px;
+    min-height: auto;
+  }
+  
+  .application-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+  
+  .application-message {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .application-container {
+    padding: 30px 20px;
+  }
+  
+  .application-title {
+    font-size: 26px;
+  }
 }

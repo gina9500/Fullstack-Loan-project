@@ -12,16 +12,71 @@ body {
   background-color: #f5f7fa;
 }
 
+/* 贷款应用程序的全局样式 */
 .app-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding: 0;
+  margin: 0;
 }
 
 /* 确保页面内容不会被导航栏遮挡 */
 .page-content {
   flex: 1;
   padding: 20px;
+}
+
+/* 响应式设计 - 手机视图 */
+@media (max-width: 480px) {
+  .page-content {
+    padding: 10px;
+  }
+  
+  button {
+    padding: 0.8em 1.4em;
+    font-size: 0.9em;
+  }
+}
+
+/* 响应式设计 - 平板视图 */
+@media (max-width: 768px) {
+  .page-content {
+    padding: 15px;
+  }
+}
+
+/* 响应式设计 - 小型桌面 */
+@media (max-width: 1024px) {
+  .page-content {
+    padding: 20px;
+  }
+}
+
+/* 表单全局样式 */
+form {
+  width: 100%;
+}
+
+/* 通用卡片样式 */
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 通用容器样式 */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
 }
 
 /* 通用按钮样式 */
@@ -38,11 +93,4 @@ a {
 
 a:hover {
   text-decoration: underline;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .page-content {
-    padding: 15px;
-  }
 }

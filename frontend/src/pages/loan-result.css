@@ -72,8 +72,6 @@
   font-size: 20px;
   border: none;
   font-family: Arial, sans-serif;
-  margin-right: auto;
-  min-width: 500px;
   border-radius: 4px;
 }
 
@@ -86,11 +84,10 @@
   font-size: 16px;
   border: none;
   font-family: Arial, sans-serif;
-  margin-right: auto;
-  min-width: 500px;
   font-weight: normal;
   font-style: italic;
   border-radius: 4px;
+
 }
 
 .button-section {
@@ -127,6 +124,11 @@
   
   .decision-container h2 {
     font-size: 18px;
+  }
+  
+  .risk-level-display,
+  .information-display {
+    font-size: 16px; /* 调整移动端字体大小 */
   }
   
   .re-evaluation-button {

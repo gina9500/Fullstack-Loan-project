@@ -1,6 +1,7 @@
 /* 文件上传字段样式 */
 .file-upload-field {
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .file-upload-field label {
@@ -8,6 +9,58 @@
   margin-bottom: 8px;
   font-weight: 500;
   color: #333;
+  font-size: 14px;
+}
+
+.file-upload-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #f0f2f5;
+  border: 1px dashed #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.file-upload-button:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.file-upload-input {
+  display: none;
+}
+
+.file-info {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+  word-break: break-all;
+}
+
+.file-upload-field .error-message {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* 响应式调整 */
+@media (max-width: 480px) {
+  .file-upload-field {
+    margin-bottom: 16px;
+  }
+  
+  .file-upload-button {
+    padding: 15px 20px;
+    font-size: 15px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .required {

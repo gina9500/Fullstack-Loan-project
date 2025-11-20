@@ -9,7 +9,7 @@ import './corporation-loan-application.css';
 
 /**
  * 企业入力页面组件
- * 负责处理企业贷款申请表单的所有功能，数据收集、验证和提交
+ * 负责处理企业贷款表单的所有功能，数据收集、验证和提交
  */
 const CorporationLoanApplication = () => {
   

@@ -1,7 +1,7 @@
 // 登录页面
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BaseLayout from '../components/layout/BaseLayout';
+// 移除BaseLayout的导入
 import InputField from '../components/form/InputField';
 import { login } from '../api/user';
 import './login.css';
@@ -115,7 +115,7 @@ const Login = () => {
 
   // 组件渲染
   return (
-    <BaseLayout>
+
       <div className="login-container">
         <h1 className="login-title">Login</h1>
         
@@ -159,7 +159,7 @@ const Login = () => {
           </button>
         </form>
       </div>
-    </BaseLayout>
+
   );
 };
 

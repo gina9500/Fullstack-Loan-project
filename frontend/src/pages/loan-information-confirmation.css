@@ -5,13 +5,12 @@
   box-sizing: border-box;
 }
 
+h2{
+   text-align: center;
+}
 .page-title {
   display: none;
 }
-
-/* .loan-information-confirmation h2 {
-  display: none;
-} */
 
 /* 贷款类型标识 */
 .loan-type-indicator {
