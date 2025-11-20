@@ -1,5 +1,4 @@
 /* 登录页面样式 */
-/* 确保整个应用容器占满视口 */
 .app-container {
   width: 100%;
   min-height: 100vh;
@@ -21,7 +20,7 @@ body {
   background-color: #f0f2f5;
 }
 
-/* 确保根容器占满视口 */
+/* 确保根容器占满 */
 #root {
   width: 100%;
   min-height: 100vh;
@@ -54,20 +53,20 @@ body {
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* 减小表单元素间距，从15px改为10px */
+  gap: 10px;
   width: 100%;
   max-width: 300px;
 }
 
 .login-button {
-  width: 180px; /* 缩小按钮宽度，从250px改为180px */
-  margin: 15px auto 0; /* 减小上外边距，从20px改为15px */
-  padding: 8px; /* 减小按钮内边距，从10px改为8px */
+  width: 180px;
+  margin: 15px auto 0;
+  padding: 8px;
   background-color: #52c41a;
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 14px; /* 减小按钮字体大小，从16px改为14px */
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -88,7 +87,7 @@ body {
   color: #ff4d4f;
   padding: 10px;
   border-radius: 4px;
-  margin-bottom: 10px; /* 减小错误提示框的下边距 */
+  margin-bottom: 10px;
   text-align: center;
   width: 100%;
 }
@@ -107,6 +106,6 @@ body {
   
   .login-button {
     width: 100%;
-    max-width: 150px; /* 小屏幕上按钮也相应缩小 */
+    max-width: 150px;
   }
 }

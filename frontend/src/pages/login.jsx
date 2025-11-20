@@ -1,7 +1,6 @@
 // 登录页面
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// 移除BaseLayout的导入
 import InputField from '../components/form/InputField';
 import { login } from '../api/user';
 import './login.css';
@@ -57,7 +56,7 @@ const Login = () => {
       newErrors.userId = '用户名不能为空';
     }
 
-    // 验证密码规则：不能为空、必须为8位数字
+    // 验证密码规则不能为空、必须为8位数字
     if (!formData.password.trim()) {
       newErrors.password = '密码不能为空';
     } else if (formData.password.length !== 8) {
@@ -67,7 +66,7 @@ const Login = () => {
     }
 
     setErrors(newErrors);
-    // 如果没有错误（对象为空），返回true表示验证通过
+    // 如果没有错误，返回true表示验证通过
     return Object.keys(newErrors).length === 0;
   };
 
@@ -93,14 +92,14 @@ const Login = () => {
       
       // 根据用户名中是否包含'per'来判断是个人用户还是企业用户
       if (formData.userId.toLowerCase().includes('per')) {
-        // 个人用户跳转到个人贷款申请页面
+        // 个人用户跳转到个人入力页面
         navigate('/personal-loan-application');
       } else {
-        // 企业用户跳转到企业贷款申请页面
+        // 企业用户跳转到企业入力页面
         navigate('/corporation-loan-application');
       }
     } catch (error) {
-      // 即使API调用失败，也尝试根据用户名进行跳转（模拟开发测试）
+      // 即使API调用失败，根据用户名进行跳转（模拟开发测试）
       console.error('登录API调用失败:', error);
       if (formData.userId.toLowerCase().includes('ind')) {
         navigate('/personal-loan-application');
@@ -119,7 +118,6 @@ const Login = () => {
       <div className="login-container">
         <h1 className="login-title">Login</h1>
         
-        {/* 显示提交错误信息（如果有） */}
         {errors.submit && (
           <div className="submit-error">{errors.submit}</div>
         )}
