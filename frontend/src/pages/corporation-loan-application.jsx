@@ -162,7 +162,7 @@ const CorporationLoanApplication = () => {
     }
   };
 
-  // 生成年份选项
+  // 年份选项
   const yearOptions = [];
   const currentYear = new Date().getFullYear();
   for (let year = currentYear; year >= 1950; year--) {
