@@ -56,13 +56,17 @@ const Login = () => {
       newErrors.userId = '用户名不能为空';
     }
 
-    // 验证密码规则不能为空、必须为8位数字
+    // 验证密码规则不能为空、必须为8位英数字且不能是纯数字或纯字母
     if (!formData.password.trim()) {
       newErrors.password = '密码不能为空';
     } else if (formData.password.length !== 8) {
-      newErrors.password = '密码必须为8位数字';
-    } else if (!/^\d+$/.test(formData.password)) {
-      newErrors.password = '密码必须为数字';
+      newErrors.password = '密码必须为8位';
+    } else if (!/^[A-Za-z0-9]{8}$/.test(formData.password)) {
+      newErrors.password = '密码必须为8位英数字';
+    } else if (/^\d+$/.test(formData.password)) {
+      newErrors.password = '密码不能为纯数字';
+    } else if (/^[A-Za-z]+$/.test(formData.password)) {
+      newErrors.password = '密码不能为纯字母';
     }
 
     setErrors(newErrors);

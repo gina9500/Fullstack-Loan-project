@@ -82,22 +82,34 @@ const CorporationLoanApplication = () => {
     // 必填字段验证
     if (!formData.entName.trim()) newErrors.entName = 'Company name is required';
     if (!formData.uscc.trim()) newErrors.uscc = 'Unified Social Credit Code is required';
+    // 验证统一社会信用代码为18位英数字且不能是纯数字或纯字母
+    if (formData.uscc && !/^[A-Za-z0-9]{18}$/.test(formData.uscc)) {
+      newErrors.uscc = 'Uscc must be 18 characters';
+    } else if (formData.uscc && /^\d+$/.test(formData.uscc)) {
+      newErrors.uscc = 'Uscc cannot be all numbers';
+    } else if (formData.uscc && /^[A-Za-z]+$/.test(formData.uscc)) {
+      newErrors.uscc = 'Uscc cannot be all letters';
+    }
     if (!formData.companyEmail.trim()) newErrors.companyEmail = 'Company email is required';
     if (!formData.repayAccountBank) newErrors.repayAccountBank = 'Please select your repay account bank';
     if (!formData.repayAccountNo.trim()) newErrors.repayAccountNo = 'Account number is required';
-    // 验证账户号码为19位数字
+    // 验证还款账户号码为19位数字
     if (formData.repayAccountNo && !/^\d{19}$/.test(formData.repayAccountNo)) {
       newErrors.repayAccountNo = 'Account number must be 19 digits';
     }
     // 验证邮箱格式
+    // 不能包含空格字符/必须包含一个 @ 符号/@ 符号前后必须有内容/必须包含一个点号 (.) /点号前后必须有内容
     if (formData.companyEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.companyEmail)) {
       newErrors.companyEmail = 'Please enter a valid email address';
     }
-    // 贷款信息验证
+    // 验证贷款申请金额
+    // 数字/整数或小数/如果是小数，最多只能有两位小数/必须大于0
     if (!formData.loanAmount.trim()) newErrors.loanAmount = 'Loan amount is required';
     if (formData.loanAmount && (!/^\d+(\.\d{1,2})?$/.test(formData.loanAmount) || parseFloat(formData.loanAmount) <= 0)) {
       newErrors.loanAmount = 'Please enter a valid positive number';
     }
+
+    // 必填字段验证
     if (!formData.loanTerm) newErrors.loanTerm = 'Loan term is required';
     if (!formData.loanPurpose) newErrors.loanPurpose = 'Loan purpose is required';
     if (!formData.propProofType) newErrors.propProofType = 'Property proof type is required';
@@ -297,13 +309,14 @@ const CorporationLoanApplication = () => {
                 value={formData.repayAccountNo}
                 onChange={handleChange}
                 error={errors.repayAccountNo}
+                type="number"
                 required
                 placeholder="19-digit account number"
               />
             </div>
           </div>
 
-          {/* 贷款信息部分 */}
+          {/* 贷款申请金额 */}
           <div className="form-section">
             <h3>Loan Information</h3>
             <div className="form-row">

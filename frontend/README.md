@@ -15,7 +15,7 @@
 
 src/
 ├── api/ # API 请求接口
-├── components/ # 可复用组件
+├── components/ # 组件
 │ ├── form/ # 表单相关组件
 │ └── layout/ # 布局组件
 ├── pages/ # 页面组件
