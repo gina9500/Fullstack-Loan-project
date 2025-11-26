@@ -103,9 +103,3 @@
 .upload-button:hover {
   background-color: #40a9ff;
 }
-
-.error-message {
-  color: #ff4d4f;
-  font-size: 12px;
-  margin-top: 4px;
-}

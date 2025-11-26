@@ -48,7 +48,7 @@
   .select-field select {
     padding: 10px 12px;
     font-size: 15px;
-    height: 44px; /* 确保足够的触摸区域 */
+    height: 44px;
   }
 }
 
