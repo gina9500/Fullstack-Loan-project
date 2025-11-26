@@ -1,6 +1,6 @@
 /* 文件上传字段样式 */
 .file-upload-field {
-  margin-bottom: 20px;
+   margin-bottom: 8px !important;
   width: 100%;
 }
 
@@ -14,7 +14,7 @@
 
 .file-upload-button {
   display: inline-block;
-  padding: 10px 20px;
+  padding: 8px 12px !important;
   background-color: #f0f2f5;
   border: 1px dashed #d9d9d9;
   border-radius: 4px;
@@ -42,9 +42,13 @@
 
 .file-upload-field .error-message {
   color: #ff4d4f;
-  font-size: 12px;
-  margin-top: 4px;
+  font-size: 11px !important;
+  margin-top: 1px !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
   display: block;
+  line-height: 1.1 !important;
+  height: auto;
 }
 
 /* 响应式调整 */

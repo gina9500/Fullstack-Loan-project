@@ -1,6 +1,6 @@
 /* 输入字段样式 */
 .input-field {
-  margin-bottom: 20px;
+  margin-bottom: 8px !important;
   width: 100%;
 }
 
@@ -18,13 +18,14 @@
 
 .input-field input {
   width: 100%;
-  padding: 12px 15px;
+  padding: 8px 12px !important;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   font-size: 14px;
   transition: border-color 0.3s, box-shadow 0.3s;
   box-sizing: border-box;
   background-color: white;
+  height: 36px;
 }
 
 .input-field input:focus {
@@ -37,11 +38,16 @@
   border-color: #ff4d4f;
 }
 
-.error-message {
+/* 使用更具优先级的选择器 */
+.input-field > .error-message {
   color: #ff4d4f;
-  font-size: 12px;
-  margin-top: 4px;
+  font-size: 11px !important;
+  margin-top: 1px !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
   display: block;
+  line-height: 1.1 !important;
+  height: auto;
 }
 
 /* 响应式调整 */
@@ -52,8 +58,8 @@
   
   .input-field input {
     padding: 10px 12px;
-    font-size: 15px; /* 在小屏幕上增大字体以便于点击 */
-    height: 44px; /* 确保足够的触摸区域 */
+    font-size: 15px;
+    height: 44px; 
   }
 }
 
