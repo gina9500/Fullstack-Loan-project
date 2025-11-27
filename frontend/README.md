@@ -84,3 +84,7 @@ npm install
 # 开发环境运行
 
 npm run dev
+
+# 财务数据图表
+
+npm install chart.js react-chartjs-2
