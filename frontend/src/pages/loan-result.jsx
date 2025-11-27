@@ -4,13 +4,13 @@ import BaseLayout from '../components/layout/BaseLayout';
 import './loan-result.css';
 
 const LoanResult = () => {
+
   // 处理重新评估按钮点击事件
   const handleReEvaluation = () => {
-
-    window.location.href = '/corporation-loan-application';
-    
     // 记录需要保留的数据标记
     localStorage.setItem('retainData', 'true');
+    // 跳转到企业贷款申请页面
+    window.location.href = '/corporation-loan-application';
   };
 
   // 组件渲染
@@ -20,19 +20,19 @@ const LoanResult = () => {
         <div className="decision-container">
           <h1>Risk Information Loan</h1>
           <h2>Decision Notification</h2>
-          
+
           <div className="info-item">
             <span className="info-label">Risk level</span>
             <div className="risk-level-display">medium</div>
           </div>
-          
+
           <div className="info-item">
             <span className="info-label">Information</span>
             <div className="information-display">Suggest additional materials.</div>
           </div>
-          
+
           <div className="button-section">
-            <button 
+            <button
               className="re-evaluation-button"
               onClick={handleReEvaluation}
             >

@@ -1,5 +1,5 @@
 // 企业入力页面
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BaseLayout from '../components/layout/BaseLayout';
 import InputField from '../components/form/InputField';
 import SelectField from '../components/form/SelectField';
@@ -12,7 +12,7 @@ import './corporation-loan-application.css';
  * 负责处理企业贷款表单的所有功能，数据收集、验证和提交
  */
 const CorporationLoanApplication = () => {
-  
+
   // 表单数据初始化所有表单字段为默认值
   const [formData, setFormData] = useState({
     entName: '',            // 企业名称
@@ -32,21 +32,39 @@ const CorporationLoanApplication = () => {
     propProofDocs: null             // 财产证明文件
   });
 
+  // 从localStorage恢复数据
+  useEffect(() => {
+    const savedData = localStorage.getItem('loanApplication');
+    if (savedData && localStorage.getItem('retainData') === 'true') {
+      try {
+        const parsedData = JSON.parse(savedData);
+        setFormData(prev => ({
+          ...prev,
+          ...parsedData
+        }));
+        // 清除retainData标记，因为数据已经恢复
+        localStorage.removeItem('retainData');
+      } catch (err) {
+        console.error('解析保存的数据失败:', err);
+      }
+    }
+  }, []);
+
   // 表单验证错误信息状态管理
   const [errors, setErrors] = useState({});
   // 表单提交状态 - 用于显示提交中的加载状态
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-    /**
-   * 处理表单输入变化
-   */
+  /**
+ * 处理表单输入变化
+ */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-  
+
     // 当用户修改输入字段时更新表单数据，并清除对应字段的错误信息
     if (errors[name]) {
       setErrors(prev => ({
@@ -59,11 +77,16 @@ const CorporationLoanApplication = () => {
   /**
    * 处理文件上传
    */
-  const handleFileChange = (name, file) => {
+  const handleFileChange = (name, event) => {
+    // 从事件对象中提取文件
+    const file = event && event.target && event.target.files ? event.target.files[0] : null;
+    console.log('文件上传:', name, '事件类型:', typeof event, '文件对象:', file);
+    
     setFormData(prev => ({
       ...prev,
       [name]: file
     }));
+    
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -72,13 +95,13 @@ const CorporationLoanApplication = () => {
     }
   };
 
-   /**
-   * 表单验证函数
-   * 验证所有必填字段和格式要求，设置错误信息并返回验证结果
-   */
+  /**
+  * 表单验证函数
+  * 验证所有必填字段和格式要求，设置错误信息并返回验证结果
+  */
   const validateForm = () => {
     const newErrors = {};
-    
+
     // 必填字段验证
     if (!formData.entName.trim()) newErrors.entName = 'Company name is required';
     if (!formData.uscc.trim()) newErrors.uscc = 'Unified Social Credit Code is required';
@@ -120,19 +143,26 @@ const CorporationLoanApplication = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-    /**
-   * 处理表单提交
-   */
+  /**
+ * 处理表单提交
+ */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
+
+    alert('表单提交被触发！');
+
+    const isValid = validateForm();
+
+    if (!isValid) {
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
+
+      const propProofDocsName = formData.propProofDocs?.name || null;
+
       // 由于没有后端API，模拟保存表单数据到localStorage并跳转到确认页面
       const serializableData = {
         entName: formData.entName,
@@ -145,14 +175,19 @@ const CorporationLoanApplication = () => {
         loanTerm: formData.loanTerm,
         loanPurpose: formData.loanPurpose,
         propProofType: formData.propProofType,
-        industryCategory: formData.industryCategory
+        industryCategory: formData.industryCategory,
+        // 添加文件名字段
+        propProofDocsName: propProofDocsName
       };
-      
+
       localStorage.setItem('loanApplication', JSON.stringify(serializableData));
-      
+
+      // 设置retainData标记，用于指示需要保留数据
+      localStorage.setItem('retainData', 'true');
+
       // 跳转到确认页面
       window.location.href = '/loan-information-confirmation';
-      
+
       /*
       // 以下是原有的API调用代码，暂时注释掉
       // 模拟提交成功
@@ -174,73 +209,67 @@ const CorporationLoanApplication = () => {
     }
   };
 
-  // 年份选项
-  const yearOptions = [];
-  const currentYear = new Date().getFullYear();
-  for (let year = currentYear; year >= 1950; year--) {
-    yearOptions.push({ value: year, label: year.toString() });
-  }
-
-  // 行业类别选项
-  const industryCategoryOptions = [
-    { value: 'agriculture', label: '农林牧渔' },
-    { value: 'chemical', label: '基础化工' },
-    { value: 'nonbanking', label: '非银金融' }
+  // 还款账户银行
+  const bankOptions = [
+    { value: '中国银行', label: '中国银行' },
+    { value: '工商银行', label: '工商银行' },
+    { value: '招商银行', label: '招商银行' }
   ];
 
-  // 贷款期限选项
+  // 贷款期限
   const loanTermOptions = [
-    { value: '6', label: '6 months' },
-    { value: '12', label: '1 year' },
-    { value: '24', label: '2 years' },
-    { value: '36', label: '3 years' },
-    { value: '60', label: '5 years' },
-    { value: '120', label: '10 years' },
-    { value: '240', label: '20 years' },
-    { value: '360', label: '30 years' }
+    { value: '6个月', label: '6个月' },
+    { value: '1年', label: '1年' },
+    { value: '2年', label: '2年' },
+    { value: '3年', label: '3年' },
+    { value: '5年', label: '5年' },
+    { value: '10年', label: '10年' },
+    { value: '20年', label: '20年' },
+    { value: '30年', label: '30年' }
   ];
 
-  // 贷款用途选项
+  // 贷款目的
   const loanPurposeOptions = [
-    { value: 'credit', label: '信用贷款' },
-    { value: 'mortgage', label: '抵押贷款' },
-    { value: 'tax', label: '税贷' }
+    { value: '信用贷款', label: '信用贷款' },
+    { value: '抵押贷款', label: '抵押贷款' },
+    { value: '税贷', label: '税贷' }
   ];
 
-  // 根据贷款用途获取财产证明类型选项
+  // 根据贷款目的获取财产证明类型
   const getPropertyProofOptions = () => {
     switch (formData.loanPurpose) {
-      case 'credit':
+      case '信用贷款':
         return [
-          { value: 'business_license', label: '营业执照' },
-          { value: 'financial_report', label: '财务报表' },
-          { value: 'credit_report', label: '企业信用报告' },
-          { value: 'tax_payment', label: '纳税证明' },
-          { value: 'bank_flow', label: '银行流水' }
+          { value: '营业执照', label: '营业执照' },
+          { value: '财务报表', label: '财务报表' },
+          { value: '企业信用报告', label: '企业信用报告' },
+          { value: '纳税证明', label: '纳税证明' },
+          { value: '银行流水', label: '银行流水' }
         ];
-      case 'mortgage':
+      case '抵押贷款':
         return [
-          { value: 'house_property', label: '房产证' },
-          { value: 'land_use', label: '土地使用权证' },
-          { value: 'vehicle_registration', label: '车辆登记证' },
-          { value: 'equipment_property', label: '设备产权证明' }
+          { value: '房产证', label: '房产证' },
+          { value: '土地使用权证', label: '土地使用权证' },
+          { value: '车辆登记证', label: '车辆登记证' },
+          { value: '设备产权证明', label: '设备产权证明' }
         ];
-      case 'tax':
+      case '税贷':
         return [
-          { value: 'tax_return', label: '纳税申报表' },
-          { value: 'tax_certificate', label: '纳税凭证' }
+          { value: '纳税申报表', label: '纳税申报表' },
+          { value: '纳税凭证', label: '纳税凭证' }
         ];
       default:
         return [];
     }
   };
-  
-  // 还款账户银行选项
-  const bankOptions = [
-    { value: 'bank_of_china', label: '中国银行' },
-    { value: 'icbc', label: '工商银行' },
-    { value: 'cmb', label: '招商银行' }
+
+  // 所属行业
+  const industryCategoryOptions = [
+    { value: '农林牧渔', label: '农林牧渔' },
+    { value: '基础化工', label: '基础化工' },
+    { value: '非银金融', label: '非银金融' }
   ];
+
 
   // 组件渲染
   return (
@@ -369,18 +398,18 @@ const CorporationLoanApplication = () => {
                 error={errors.propProofType}
                 required
                 disabled={!formData.loanPurpose}
-                placeholder="***Please Select*** ***Unsecured Loan*** ***Property Proof Type***"  
+                placeholder="***Please Select*** ***Unsecured Loan*** ***Property Proof Type***"
               />
             </div>
             <div className="form-row">
-              <FileUploadField
-                label="Property Proof Document"
-                name="propProofDocs"
-                onChange={(file) => handleFileChange('propProofDocs', file)}
-                error={errors.propProofDocs}
-                required
-                placeholder="Please upload your property proof document!"
-              />
+            <FileUploadField
+              label="Property Proof Document"
+              name="propProofDocs"
+              onChange={(e) => handleFileChange('propProofDocs', e)}
+              error={errors.propProofDocs}
+              required
+              placeholder="Please upload your property proof document!"
+/>
             </div>
             <div className="form-row">
               <SelectField
@@ -396,8 +425,8 @@ const CorporationLoanApplication = () => {
           </div>
 
           <div className="form-actions">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="submit-button"
               disabled={isSubmitting}
             >

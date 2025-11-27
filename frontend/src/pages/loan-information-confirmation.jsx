@@ -1,7 +1,6 @@
 // 贷款信息确认页面
 import React, { useEffect, useState } from 'react';
 import BaseLayout from '../components/layout/BaseLayout';
-import { confirmLoanApplication } from '../api/loan';
 import './loan-information-confirmation.css';
 
 const LoanInformationConfirmation = () => {
@@ -13,10 +12,13 @@ const LoanInformationConfirmation = () => {
 
   useEffect(() => {
     // 从localStorage获取申请信息
-    const savedData = localStorage.getItem('corporationLoanData');
+    const savedData = localStorage.getItem('loanApplication');
+    console.log('从localStorage获取的数据:', savedData);
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
+        console.log('解析后的数据:', parsedData);
+        console.log('文件名:', parsedData.propProofDocsName);
         setApplicationData(parsedData);
       } catch (err) {
         console.error('解析申请数据失败:', err);
@@ -42,8 +44,8 @@ const LoanInformationConfirmation = () => {
       loanAmount: "",
       loanTerm: "",
       loanPurpose: "",
-      propertyProofType: "",
-      propertyProofDocument: true,
+      propProofType: "",
+      propProofDocsName: "",// 添加文件名字段
       industryCategory: ""
     };
     setApplicationData(defaultData);
@@ -69,10 +71,11 @@ const LoanInformationConfirmation = () => {
     }
   };
 
-  const handleBack = () => {
-    // 返回企业贷款申请页面
-    window.location.href = '/corporation-loan-application';
-  };
+const handleBack = () => {
+  // 设置retainData标记，指示需要保留表单数据
+  localStorage.setItem('retainData', 'true');
+  window.location.href = '/corporation-loan-application';
+};
 
   // // 模拟财务数据
   // const financialData = [
@@ -185,14 +188,14 @@ const LoanInformationConfirmation = () => {
             <div className="form-row">
               <div className="form-field">
                 <label>Property Proof Type</label>
-                <div className="form-value">{applicationData.propertyProofType || '-'}</div>
+                <div className="form-value">{applicationData.propProofType || '-'}</div>
               </div>
             </div>
             
             <div className="form-row">
               <div className="form-field">
                 <label>Property Proof Document</label>
-                <div className="form-value">{applicationData.propertyProofDocument ? '文件已上传' : '-'}</div>
+                <div className="form-value">{applicationData.propProofDocsName || '-'}</div>
               </div>
             </div>
             
