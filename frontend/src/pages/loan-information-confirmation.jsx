@@ -93,9 +93,8 @@ const profitData = applicationData?.financialData || [
   { period: '2024.4Q', value: 13044706.32, yearOnYear: 15.0, chainRatio: 12.0 }
 ];
 
-// 设置图表最大值为数据中的最大值的1.2倍
-const chartMaxValue = applicationData?.chartMaxValue || 
-  (Math.max(...profitData.map(item => item.value)) * 1.2) || 15000000;
+// 移除动态计算的最大值，使用固定最大值25000000
+const FIXED_MAX_VALUE = 25000000;
 
   // 格式化数字显示，添加千分位分隔符
 const formatNumber = (num) => {
@@ -110,7 +109,7 @@ const formatPercentage = (num) => {
   return num.toFixed(1);
 };
   
-  // 生成Y轴刻度的函数
+  // 生成Y轴刻度的函数 - 返回固定的利润数字序列
  const generateYAxisTicks = () => {
   return [25000000, 20000000, 15000000, 10000000, 5000000, 0];
 };
@@ -300,16 +299,16 @@ const formatPercentage = (num) => {
           <div className="chart-container">
             {/* 图表内容 */}
             <div className="chart-content">
-              {/* 左侧Y轴 - 利润 */}
+              {/* 左侧Y轴 - 现在显示百分比（交换后） */}
               <div className="left-y-axis">
                 <div className="axis-title">利润</div>
-                {generateYAxisTicks(chartMaxValue).map((value, index) => (
+                {[20, 15, 10, 5, 0, -5, -10].map((value, index) => (
                   <div 
                     key={index} 
                     className="y-axis-tick"
-                    style={{ bottom: `${(value / chartMaxValue) * 100}%` }}
+                    style={{ bottom: `${getPercentageYPosition(value)}%` }}
                   >
-                    {formatNumber(value)}
+                    {value}%
                   </div>
                 ))}
               </div>
@@ -318,12 +317,12 @@ const formatPercentage = (num) => {
               <div className="chart-main">
                 {/* 网格线 */}
                 <div className="grid-lines">
-                  {/* 水平网格线 */}
-                  {generateYAxisTicks(chartMaxValue).map((value, index) => (
+                  {/* 水平网格线 - 使用固定利润序列 */}
+                  {generateYAxisTicks().map((value, index) => (
                     <div 
                       key={`h-${index}`} 
                       className="horizontal-grid-line"
-                      style={{ bottom: `${(value / chartMaxValue) * 100}%` }}
+                      style={{ bottom: `${(value / FIXED_MAX_VALUE) * 100}%` }}
                     ></div>
                   ))}
                   {/* 垂直网格线 */}
@@ -339,10 +338,10 @@ const formatPercentage = (num) => {
                   })}
                 </div>
                 
-                {/* 柱状图 - 利润数据 */}
+                {/* 柱状图 - 利润数据 - 使用固定最大值 */}
                 <div className="bar-chart">
                   {profitData.map((item, index) => {
-                    const barHeight = (item.value / chartMaxValue) * 100;
+                    const barHeight = (item.value / FIXED_MAX_VALUE) * 100;
                     const barPosition = (index / (profitData.length - 1)) * 100;
                     return (
                       <div 
@@ -478,16 +477,16 @@ const formatPercentage = (num) => {
                 )}
               </div>
               
-              {/* 右侧Y轴 - 百分比 */}
+              {/* 右侧Y轴 - 现在显示利润（交换后） */}
               <div className="right-y-axis">
                 <div className="axis-title">百分比</div>
-                {[20, 15, 10, 5, 0, -5, -10].map((value, index) => (
+                {generateYAxisTicks().map((value, index) => (
                   <div 
                     key={index} 
                     className="y-axis-tick"
-                    style={{ bottom: `${getPercentageYPosition(value)}%` }}
+                    style={{ bottom: `${(value / FIXED_MAX_VALUE) * 100}%` }}
                   >
-                    {value}%
+                    {formatNumber(value)}
                   </div>
                 ))}
               </div>
