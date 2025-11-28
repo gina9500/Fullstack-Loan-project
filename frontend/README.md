@@ -88,3 +88,5 @@ npm run dev
 # 财务数据图表
 
 npm install chart.js react-chartjs-2
+
+npm install xlsx

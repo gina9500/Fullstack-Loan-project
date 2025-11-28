@@ -8,7 +8,12 @@ const LoanInformationConfirmation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [chartType, setChartType] = useState('同比');
+  // 修改初始状态为未选中
+  const [showYearOnYear, setShowYearOnYear] = useState(false);
+  const [showChainRatio, setShowChainRatio] = useState(false);
+  // 添加悬停提示状态
+  const [tooltipData, setTooltipData] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     // 从localStorage获取申请信息
@@ -77,15 +82,83 @@ const handleBack = () => {
   window.location.href = '/corporation-loan-application';
 };
 
-  // // 模拟财务数据
-  // const financialData = [
-  //   { month: '2023.01', value: 4000 },
-  //   { month: '2023.02', value: 4200 },
-  //   { month: '2023.03', value: 4100 },
-  //   { month: '2023.04', value: 4300 },
-  //   { month: '2023.05', value: 4400 },
-  //   { month: '2023.06', value: 4600 },
-  // ];
+const profitData = applicationData?.financialData || [
+  { period: '2023.1Q', value: 10304706.32, yearOnYear: 0.8, chainRatio: 0.5 },
+  { period: '2023.2Q', value: 10404706.32, yearOnYear: 0.7, chainRatio: 0.5 },
+  { period: '2023.3Q', value: 11004706.32, yearOnYear: 0.6, chainRatio: 0.4 },
+  { period: '2023.4Q', value: 11504706.32, yearOnYear: -5.0, chainRatio: -1.0 },
+  { period: '2024.1Q', value: 12004706.32, yearOnYear: 11.0, chainRatio: 6.0 },
+  { period: '2024.2Q', value: 11804706.32, yearOnYear: 10.0, chainRatio: 0.2 },
+  { period: '2024.3Q', value: 12504706.32, yearOnYear: 13.0, chainRatio: 8.5 },
+  { period: '2024.4Q', value: 13044706.32, yearOnYear: 15.0, chainRatio: 12.0 }
+];
+
+// 设置图表最大值为数据中的最大值的1.2倍
+const chartMaxValue = applicationData?.chartMaxValue || 
+  (Math.max(...profitData.map(item => item.value)) * 1.2) || 15000000;
+
+  // 格式化数字显示，添加千分位分隔符
+const formatNumber = (num) => {
+  return num.toLocaleString('zh-CN', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
+};
+
+  // 格式化百分比显示
+const formatPercentage = (num) => {
+  return num.toFixed(1);
+};
+  
+  // 生成Y轴刻度的函数
+  const generateYAxisTicks = (maxValue) => {
+    const ticks = [];
+    // 计算合适的间隔，根据最大值自动调整
+    const interval = maxValue / 5; // 将最大值分成5个间隔
+    for (let i = 5; i >= 0; i--) {
+      ticks.push(Math.round(interval * i));
+    }
+    return ticks;
+  };
+
+  // 计算百分比数据点的Y坐标位置
+  const getPercentageYPosition = (value) => {
+    // 假设百分比范围是 -10% 到 20%
+    const minPercentage = -10;
+    const maxPercentage = 20;
+    const range = maxPercentage - minPercentage;
+    return ((value - minPercentage) / range) * 100;
+  };
+
+  // 生成折线图路径
+  const generateLinePath = (data, property) => {
+    if (!data || data.length === 0) return '';
+    
+    const points = data.map((item, index) => {
+      const x = (index / (data.length - 1)) * 100;
+      const y = 100 - getPercentageYPosition(item[property]);
+      return `${x},${y}`;
+    });
+    
+    return `M ${points.join(' L ')}`;
+  };
+
+  // 处理悬停事件
+  const handleMouseEnter = (data, event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const chartRect = document.querySelector('.chart-content').getBoundingClientRect();
+    
+    setTooltipData(data);
+    setTooltipPosition({
+      x: rect.left - chartRect.left + rect.width / 2,
+      y: rect.top - chartRect.top - 10
+    });
+  };
+
+  // 处理鼠标离开事件
+  const handleMouseLeave = () => {
+    setTooltipData(null);
+  };
 
   if (isLoading) {
     return (
@@ -110,8 +183,8 @@ const handleBack = () => {
   return (
     <BaseLayout title="Loan Information Confirmation">
       <div className="loan-information-confirmation">
-        <div className="page-title">企业确认画面</div>
-        <h2>Loan Information Confirmation</h2>
+        {/* 删除企业确认画面标题 */}
+        <h2 style={{ textAlign: 'center' }}>Loan Information Confirmation</h2>
         
         {/* 贷款类型标识 */}
         <div className="loan-type-indicator">
@@ -208,56 +281,247 @@ const handleBack = () => {
           </div>
         </div>
         
-        {/* 财务数据图表部分
+        {/* 财务数据图表部分 */}
         <div className="financial-chart-section">
-          <h3>
-            财务数据图表 <span>预测值</span>
-          </h3>
-          <div className="chart-container">
-            <div className="mock-chart">
-              <div className="chart-header">累计金额</div>
-              <div className="chart-bars">
-                {financialData.map((item, index) => {
-                  // 计算柱子高度，最大值为100%
-                  const maxValue = Math.max(...financialData.map(d => d.value));
-                  const height = (item.value / maxValue) * 100;
-                  
-                  return (
-                    <div key={index} className="bar-group">
-                      <div 
-                        className="bar" 
-                        style={{ height: `${height}%` }}
-                      ></div>
-                      <div className="bar-label">{item.month}</div>
-                    </div>
-                  );
-                })}
-              </div>
+          <div className="chart-header">
+            <div className="chart-title-container">
+              <h3>财务数据图表</h3>
               <div className="chart-legend">
-                <label>
-                  <input 
-                    type="radio" 
-                    name="chartType" 
-                    value="同比" 
-                    checked={chartType === '同比'} 
-                    onChange={(e) => setChartType(e.target.value)} 
-                  />
+                <span>
+                  <span className="legend-dot profit"></span>
+                  利润
+                </span>
+                <span className="legend-item year-on-year">
+                  <span className="legend-line year-on-year-line"></span>
                   同比
-                </label>
-                <label>
-                  <input 
-                    type="radio" 
-                    name="chartType" 
-                    value="环比" 
-                    checked={chartType === '环比'} 
-                    onChange={(e) => setChartType(e.target.value)} 
-                  />
+                </span>
+                <span className="legend-item chain-ratio">
+                  <span className="legend-line chain-ratio-line"></span>
                   环比
-                </label>
+                </span>
               </div>
             </div>
           </div>
-        </div> */}
+          
+          <div className="chart-container">
+            {/* 图表内容 */}
+            <div className="chart-content">
+              {/* 左侧Y轴 - 利润 */}
+              <div className="left-y-axis">
+                <div className="axis-title">利润</div>
+                {generateYAxisTicks(chartMaxValue).map((value, index) => (
+                  <div 
+                    key={index} 
+                    className="y-axis-tick"
+                    style={{ bottom: `${(value / chartMaxValue) * 100}%` }}
+                  >
+                    {formatNumber(value)}
+                  </div>
+                ))}
+              </div>
+              
+              {/* 中央图表区域 */}
+              <div className="chart-main">
+                {/* 网格线 */}
+                <div className="grid-lines">
+                  {/* 水平网格线 */}
+                  {generateYAxisTicks(chartMaxValue).map((value, index) => (
+                    <div 
+                      key={`h-${index}`} 
+                      className="horizontal-grid-line"
+                      style={{ bottom: `${(value / chartMaxValue) * 100}%` }}
+                    ></div>
+                  ))}
+                  {/* 垂直网格线 */}
+                  {profitData.map((item, index) => {
+                    const position = (index / (profitData.length - 1)) * 100;
+                    return (
+                      <div 
+                        key={`v-${index}`} 
+                        className="vertical-grid-line"
+                        style={{ left: `${position}%` }}
+                      ></div>
+                    );
+                  })}
+                </div>
+                
+                {/* 柱状图 - 利润数据 */}
+                <div className="bar-chart">
+                  {profitData.map((item, index) => {
+                    const barHeight = (item.value / chartMaxValue) * 100;
+                    const barPosition = (index / (profitData.length - 1)) * 100;
+                    return (
+                      <div 
+                        key={index} 
+                        className="bar"
+                        style={{ 
+                          height: `${barHeight}%`,
+                          left: `${barPosition}%`
+                        }}
+                        onMouseEnter={(e) => handleMouseEnter(item, e)}
+                        onMouseLeave={handleMouseLeave}
+                        onTouchStart={(e) => handleMouseEnter(item, e)}
+                        onTouchEnd={handleMouseLeave}
+                      >
+                        <div className="bar-value">{formatNumber(item.value)}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {/* 折线图容器 - 合并同比环比折线图 */}
+                {(showYearOnYear || showChainRatio) && (
+                  <div className="line-chart">
+                    <svg className="chart-svg" width="100%" height="100%">
+                      {/* 同比折线 - 蓝色实线 */}
+                      {showYearOnYear && (
+                        <>
+                          <path 
+                            d={generateLinePath(profitData, 'yearOnYear')}
+                            className="line year-on-year-line"
+                            fill="none"
+                            stroke="#0000ff"
+                            strokeWidth="2"
+                          />
+                          {/* 同比数据标签 */}
+                          {profitData.map((item, index) => {
+                            const x = (index / (profitData.length - 1)) * 100;
+                            const y = 100 - getPercentageYPosition(item.yearOnYear);
+                            return (
+                              <text 
+                                key={`yoy-label-${index}`} 
+                                x={`${x}%`} 
+                                y={`${y - 12}%`} 
+                                textAnchor="middle"
+                                className="data-label year-on-year-label"
+                                fill="#0000ff"
+                              >
+                                {formatPercentage(item.yearOnYear)}%
+                              </text>
+                            );
+                          })}
+                        </>
+                      )}
+                      
+                      {/* 环比折线 - 绿色虚线 */}
+                      {showChainRatio && (
+                        <>
+                          <path 
+                            d={generateLinePath(profitData, 'chainRatio')}
+                            className="line chain-ratio-line"
+                            fill="none"
+                            stroke="#008000"
+                            strokeWidth="2"
+                            strokeDasharray="5,5"
+                          />
+                          {/* 环比数据标签 */}
+                          {profitData.map((item, index) => {
+                            const x = (index / (profitData.length - 1)) * 100;
+                            const y = 100 - getPercentageYPosition(item.chainRatio);
+                            return (
+                              <text 
+                                key={`cr-label-${index}`} 
+                                x={`${x}%`} 
+                                y={`${y + 15}%`} 
+                                textAnchor="middle"
+                                className="data-label chain-ratio-label"
+                                fill="#008000"
+                              >
+                                {formatPercentage(item.chainRatio)}%
+                              </text>
+                            );
+                          })}
+                        </>
+                      )}
+                    </svg>
+                  </div>
+                )}
+                
+                {/* X轴标签 */}
+                <div className="x-axis">
+                  {profitData.map((item, index) => {
+                    const position = (index / (profitData.length - 1)) * 100;
+                    return (
+                      <div 
+                        key={index} 
+                        className="x-axis-label"
+                        style={{ left: `${position}%` }}
+                      >
+                        {item.period}
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {/* 悬停提示框 */}
+                {tooltipData && (
+                  <div 
+                    className="tooltip"
+                    style={{
+                      left: `${tooltipPosition.x}px`,
+                      top: `${tooltipPosition.y}px`,
+                      transform: 'translate(-50%, -100%)'
+                    }}
+                  >
+                    <div className="tooltip-period">{tooltipData.period}</div>
+                    <div className="tooltip-item">
+                      <span className="tooltip-label profit">利润</span>
+                      <span className="tooltip-value">{formatNumber(tooltipData.value)}</span>
+                    </div>
+                    {showYearOnYear && (
+                      <div className="tooltip-item">
+                        <span className="tooltip-label year-on-year">同比</span>
+                        <span className="tooltip-value">{formatPercentage(tooltipData.yearOnYear)}</span>
+                      </div>
+                    )}
+                    {showChainRatio && (
+                      <div className="tooltip-item">
+                        <span className="tooltip-label chain-ratio">环比</span>
+                        <span className="tooltip-value">{formatPercentage(tooltipData.chainRatio)}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              {/* 右侧Y轴 - 百分比 */}
+              <div className="right-y-axis">
+                <div className="axis-title">百分比</div>
+                {[20, 15, 10, 5, 0, -5, -10].map((value, index) => (
+                  <div 
+                    key={index} 
+                    className="y-axis-tick"
+                    style={{ bottom: `${getPercentageYPosition(value)}%` }}
+                  >
+                    {value}%
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* 复选框切换 */}
+            <div className="chart-toggle">
+              <label className="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  className="custom-checkbox"
+                  checked={showYearOnYear} 
+                  onChange={() => setShowYearOnYear(!showYearOnYear)} 
+                />
+                <span>同比</span>
+              </label>
+              <label className="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  className="custom-checkbox"
+                  checked={showChainRatio} 
+                  onChange={() => setShowChainRatio(!showChainRatio)} 
+                />
+                <span>环比</span>
+              </label>
+            </div>
+          </div>
+        </div>
         
         {/* 按钮 */}
         <div className="form-actions">

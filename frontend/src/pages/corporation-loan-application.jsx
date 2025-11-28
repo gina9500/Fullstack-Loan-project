@@ -6,6 +6,8 @@ import SelectField from '../components/form/SelectField';
 import FileUploadField from '../components/form/FileUploadField';
 import { submitCorporationLoan } from '../api/loan';
 import './corporation-loan-application.css';
+import { parseExcelToJson, isValidExcelFile } from '../utils/excelParser';
+
 
 /**
  * 企业入力页面组件
@@ -29,7 +31,9 @@ const CorporationLoanApplication = () => {
     businessLicenseFile: null,      // 营业执照文件
     financialReportFile: null,      // 财务报表文件
     taxCertificateFile: null,       // 税务证明文件
-    propProofDocs: null             // 财产证明文件
+    propProofDocs: null,            // 财产证明文件
+    financialData: null, // 用于存储解析后的财务数据
+    chartMaxValue: 30000000 // 图表最大值
   });
 
   // 从localStorage恢复数据
@@ -77,23 +81,49 @@ const CorporationLoanApplication = () => {
   /**
    * 处理文件上传
    */
-  const handleFileChange = (name, event) => {
-    // 从事件对象中提取文件
-    const file = event && event.target && event.target.files ? event.target.files[0] : null;
-    console.log('文件上传:', name, '事件类型:', typeof event, '文件对象:', file);
-    
+const handleFileChange = async (name, event) => {
+  const file = event && event.target && event.target.files ? event.target.files[0] : null;
+  console.log('文件上传:', name, '事件类型:', typeof event, '文件对象:', file);
+  
+  // 如果是财产证明文件且为Excel文件，尝试解析
+  if (name === 'propProofDocs' && file && isValidExcelFile(file)) {
+    try {
+      // 解析Excel文件
+      const parsedData = await parseExcelToJson(file);
+      
+      setFormData(prev => ({
+        ...prev,
+        [name]: file,
+        financialData: parsedData.formattedData,
+        chartMaxValue: parsedData.maxValue
+      }));
+      
+      // 显示解析成功提示
+      alert('财务数据解析成功！将在确认页面显示图表。');
+    } catch (error) {
+      alert('文件解析失败: ' + error.message);
+      // 仍然保存文件，但不更新财务数据
+      setFormData(prev => ({
+        ...prev,
+        [name]: file
+      }));
+    }
+  } else {
+    // 其他文件类型的处理
     setFormData(prev => ({
       ...prev,
       [name]: file
     }));
-    
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
+  }
+  
+  if (errors[name]) {
+    setErrors(prev => ({
+      ...prev,
+      [name]: ''
+    }));
+  }
+};
+
 
   /**
   * 表单验证函数
@@ -177,7 +207,10 @@ const CorporationLoanApplication = () => {
         propProofType: formData.propProofType,
         industryCategory: formData.industryCategory,
         // 添加文件名字段
-        propProofDocsName: propProofDocsName
+        propProofDocsName: propProofDocsName,
+          // 添加财务数据
+      financialData: formData.financialData,
+      chartMaxValue: formData.chartMaxValue
       };
 
       localStorage.setItem('loanApplication', JSON.stringify(serializableData));
