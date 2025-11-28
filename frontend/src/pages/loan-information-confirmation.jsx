@@ -111,15 +111,9 @@ const formatPercentage = (num) => {
 };
   
   // 生成Y轴刻度的函数
-  const generateYAxisTicks = (maxValue) => {
-    const ticks = [];
-    // 计算合适的间隔，根据最大值自动调整
-    const interval = maxValue / 5; // 将最大值分成5个间隔
-    for (let i = 5; i >= 0; i--) {
-      ticks.push(Math.round(interval * i));
-    }
-    return ticks;
-  };
+ const generateYAxisTicks = () => {
+  return [25000000, 20000000, 15000000, 10000000, 5000000, 0];
+};
 
   // 计算百分比数据点的Y坐标位置
   const getPercentageYPosition = (value) => {
