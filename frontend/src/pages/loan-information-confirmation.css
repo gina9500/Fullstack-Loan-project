@@ -233,12 +233,12 @@
 
 .bar-chart {
   position: absolute;
-  bottom: 30px;
+  bottom: 0; /* 修改从30px到0，让柱状图底部与图表底部对齐 */
   left: 0;
   width: 100%;
-  height: calc(100% - 30px);
+  height: 100%; /* 修改从calc(100% - 30px)到100%，使用完整高度 */
   display: flex;
-  align-items: flex-end;
+  align-items: flex-end; /* 保持从底部对齐 */
   justify-content: space-between;
 }
 
@@ -246,7 +246,7 @@
   position: absolute;
   width: 25px;
   background-color: #ff0000;
-  bottom: 0;
+  bottom: 0; /* 保持底部为0，确保柱状图从底部开始 */
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -305,7 +305,7 @@
 /* X轴标签 */
 .x-axis {
   position: absolute;
-  bottom: 0;
+  bottom: -20px; /* 修改从0到-20px，将X轴标签移到图表主体下方 */
   left: 0;
   width: 100%;
   height: 30px;
@@ -319,6 +319,19 @@
   transform: translateX(-50%);
   font-size: 12px;
   color: #333;
+  /* 可以保持不变，因为位置由父容器.x-axis控制 */
+}
+
+/* 同时需要调整.bar-chart的高度，确保图表主体与X轴标签不重叠 */
+.bar-chart {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 20px); /* 减去X轴标签的高度空间 */
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
 }
 
 /* 悬停提示框 */
@@ -365,7 +378,7 @@
   display: flex;
   justify-content: center;
   gap: 30px;
-  margin-top: 20px;
+  margin-top: 50px;
 }
 
 .checkbox-label {
