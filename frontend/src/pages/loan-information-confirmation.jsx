@@ -83,14 +83,14 @@ const handleBack = () => {
 };
 
 const profitData = applicationData?.financialData || [
-  { period: '2023.1Q', value: 10304706.32, yearOnYear: 0.8, chainRatio: 0.5 },
-  { period: '2023.2Q', value: 10404706.32, yearOnYear: 0.7, chainRatio: 0.5 },
-  { period: '2023.3Q', value: 11004706.32, yearOnYear: 0.6, chainRatio: 0.4 },
-  { period: '2023.4Q', value: 11504706.32, yearOnYear: -5.0, chainRatio: -1.0 },
-  { period: '2024.1Q', value: 12004706.32, yearOnYear: 11.0, chainRatio: 6.0 },
-  { period: '2024.2Q', value: 11804706.32, yearOnYear: 10.0, chainRatio: 0.2 },
-  { period: '2024.3Q', value: 12504706.32, yearOnYear: 13.0, chainRatio: 8.5 },
-  { period: '2024.4Q', value: 13044706.32, yearOnYear: 15.0, chainRatio: 12.0 }
+  { period: '2023.1Q', value: 20911231, yearOnYear: "", chainRatio: "0.1" },
+  { period: '2023.2Q', value: 20922210, yearOnYear: "", chainRatio: "-0.4" },
+  { period: '2023.3Q', value: 20845238, yearOnYear: "", chainRatio: "5.3" },
+  { period: '2023.4Q', value: 21953132, yearOnYear: "", chainRatio: "-4.6" },
+  { period: '2024.1Q', value: 20943983, yearOnYear: "0.2%", chainRatio: "9.7" },
+  { period: '2024.2Q', value: 22983143, yearOnYear: "9.9", chainRatio: "0.5" },
+  { period: '2024.3Q', value: 23087998, yearOnYear: "10.8", chainRatio: "7.3" },
+  { period: '2024.4Q', value: 24762999, yearOnYear: "12.8", chainRatio: "" }
 ];
 
 // 移除动态计算的最大值，使用固定最大值25000000

@@ -157,7 +157,7 @@
 }
 
 .left-y-axis .y-axis-tick {
-  color: #0066cc; /* 蓝色刻度 */
+  color: #ff6600; /* 橙色刻度 */
   position: absolute;
   transform: translateY(50%);
   font-size: 12px;
@@ -184,7 +184,7 @@
 }
 
 .right-y-axis .y-axis-tick {
-  color: #ff6600; /* 橙色刻度 */
+  color: #0066CC; /* 蓝色刻度 */
   position: absolute;
   transform: translateY(50%);
   font-size: 12px;
