@@ -103,13 +103,15 @@
   gap: 5px;
 }
 
-/* 修改图例样式为线条而非圆点 */
+
 .legend-dot {
-  display: none; /* 隐藏圆点 */
+  display: none;
+ 
 }
 
 .legend-circle {
-  display: none; /* 隐藏圆形 */
+  display: none;
+ 
 }
 
 .legend-line {
@@ -127,7 +129,7 @@
 }
 
 .chart-container {
-    border-radius: 8px;
+  border-radius: 8px;
   padding: 20px;
   background-color: white;
 }
@@ -150,19 +152,20 @@
 }
 
 .left-y-axis .axis-title {
-  color: #0066cc; /* 蓝色标题 */
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-align: center;
+  color: #0066cc;
+  margin-top: -30px;
+  text-align: right;
+  font-size: small;
 }
 
 .left-y-axis .y-axis-tick {
-  color: #ff6600; /* 橙色刻度 */
+ color: #0066cc;
   position: absolute;
   transform: translateY(50%);
   font-size: 12px;
-  right: 10px;
+  width: 140px; /* 添加宽度，确保有足够空间进行右对齐 */
   text-align: right;
+  padding-right: 60px; /* 添加右侧内边距，与图表保持适当距离 */
 }
 
 /* 右侧Y轴 - 百分比数字 */
@@ -177,19 +180,20 @@
 }
 
 .right-y-axis .axis-title {
-  color: #ff6600; /* 橙色标题 */
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-align: center;
+  color: #ff6600;
+  margin-top: -30px;
+  text-align: left;
+  font-size: small;
 }
 
 .right-y-axis .y-axis-tick {
-  color: #0066CC; /* 蓝色刻度 */
+  color: #ff6600;
   position: absolute;
   transform: translateY(50%);
   font-size: 12px;
-  left: 10px;
-  text-align: left;
+  width: 80px;
+  text-align: right;
+  padding-right: 10px; 
 }
 
 .chart-main {
@@ -200,11 +204,10 @@
   background: none;
 }
 
-/* 移除所有灰色竖线 */
 .grid-lines {
   position: absolute;
   top: 0;
-  left: 0;
+  left: -0;
   width: 100%;
   height: 100%;
   pointer-events: none;
@@ -213,51 +216,61 @@
 
 .horizontal-grid-line {
   position: absolute;
-  left: 0;
-  width: 100%;
+  left: -30px; /* 向左延伸，覆盖左侧Y轴区域 */
+  width: calc(100% + 50px); /* 增加宽度，覆盖两侧Y轴区域 */
   height: 1px;
   background-color: #eee;
-  /* 确保从底部计算位置，与柱状图定位方式一致 */
-  bottom: 0; /* 添加这一行，确保基于底部定位 */
-  /* 移除可能存在的top属性 */
+  bottom: 0;
+}
+.horizontal-grid-line-percent {
+  position: absolute;
+  left: 0px; /* 向左延伸，覆盖左侧Y轴区域 */
+  width: calc(100% + 50px); /* 增加宽度，覆盖两侧Y轴区域 */
+  height: 1px;
+  background-color: #eee;
+  bottom: 0;
 }
 
 .vertical-grid-line {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 1px;
-  background-color: transparent !important;
   display: none !important;
-  visibility: hidden !important;
-  border: none !important;
 }
-
 .bar-chart {
   position: absolute;
-  bottom: 0; /* 修改从30px到0，让柱状图底部与图表底部对齐 */
+  bottom: 0; /* 修改为0，让柱状图从容器底部开始 */
   left: 0;
   width: 100%;
-  height: 100%; /* 修改从calc(100% - 30px)到100%，使用完整高度 */
+  height: 100%; /* 修改为100%，使用完整高度 */
   display: flex;
-  align-items: flex-end; /* 保持从底部对齐 */
+  align-items: flex-end;
   justify-content: space-between;
 }
 
+.x-axis {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .bar {
   position: absolute;
   width: 25px;
   background-color: #ff0000;
-  bottom: 0; /* 保持底部为0，确保柱状图从底部开始 */
+  bottom: 0;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding-top: 5px;
   cursor: pointer;
+  /* 添加这个属性确保柱状图可以超出容器范围显示 */
+  z-index: 1;
 }
 
 .bar-value {
-  display: none; /* 隐藏利润数字 */
+  display: none;
 }
 
 .line-chart {
@@ -273,7 +286,6 @@
   height: 100%;
 }
 
-/* 确保线条正确显示 */
 .line {
   fill: none;
   stroke-width: 2px;
@@ -286,7 +298,7 @@
 
 .chain-ratio-line {
   stroke: #008000;
-  stroke-dasharray: 5,5;
+  stroke-dasharray: 5, 5;
 }
 
 /* 数据标签样式 */
@@ -307,7 +319,7 @@
 /* X轴标签 */
 .x-axis {
   position: absolute;
-  bottom: -20px; /* 修改从0到-20px，将X轴标签移到图表主体下方 */
+  bottom: -20px;
   left: 0;
   width: 100%;
   height: 30px;
@@ -321,31 +333,19 @@
   transform: translateX(-50%);
   font-size: 12px;
   color: #333;
-  /* 可以保持不变，因为位置由父容器.x-axis控制 */
-}
-
-/* 同时需要调整.bar-chart的高度，确保图表主体与X轴标签不重叠 */
-.bar-chart {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: calc(100% - 20px); /* 减去X轴标签的高度空间 */
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
 }
 
 /* 悬停提示框 */
 .tooltip {
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(124, 122, 122, 0.8);
   color: white;
   padding: 10px;
   border-radius: 4px;
   font-size: 12px;
   pointer-events: none;
   z-index: 1000;
+  width: 120px;
 }
 
 .tooltip-period {
@@ -466,55 +466,52 @@
     flex-direction: column;
     height: 500px;
   }
-  
+
   .left-y-axis,
   .right-y-axis {
     width: 100px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding-right: 10px;
-    border: none;
-    background: none;
   }
-  
+
   .chart-main {
     margin: 10px 0;
     height: calc(100% - 80px);
   }
-  
+
   .form-style {
     grid-template-columns: 1fr;
   }
-  
+
   .chart-legend {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .back-button,
   .confirm-button {
     width: 100%;
     max-width: 300px;
     padding: 10px;
   }
-  
+
   .y-axis-tick {
     font-size: 10px;
   }
-  
+
   .bar {
     width: 20px;
   }
-  
+
   .x-axis-label {
     font-size: 10px;
   }
-  
+
   .chart-toggle {
     padding-left: 70px;
   }
-  
+
   .tooltip {
     font-size: 10px;
     min-width: 100px;

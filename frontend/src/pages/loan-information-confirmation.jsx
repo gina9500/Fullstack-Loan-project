@@ -299,18 +299,18 @@ const formatPercentage = (num) => {
           <div className="chart-container">
             {/* 图表内容 */}
             <div className="chart-content">
-              {/* 左侧Y轴 - 现在显示百分比（交换后） */}
+              {/* 左侧Y轴） */}
               <div className="left-y-axis">
                 <div className="axis-title">利润</div>
-                {[20, 15, 10, 5, 0, -5, -10].map((value, index) => (
-                  <div 
-                    key={index} 
-                    className="y-axis-tick"
-                    style={{ bottom: `${getPercentageYPosition(value)}%` }}
-                  >
-                    {value}%
-                  </div>
-                ))}
+       {generateYAxisTicks().map((value, index) => (
+    <div 
+      key={index} 
+      className="y-axis-tick"
+      style={{ bottom: `${(value / FIXED_MAX_VALUE) * 100}%` }}
+    >
+      {formatNumber(value)}
+    </div>
+  ))}
               </div>
               
               {/* 中央图表区域 */}
@@ -325,17 +325,16 @@ const formatPercentage = (num) => {
                       style={{ bottom: `${(value / FIXED_MAX_VALUE) * 100}%` }}
                     ></div>
                   ))}
-                  {/* 垂直网格线 */}
-                  {profitData.map((item, index) => {
-                    const position = (index / (profitData.length - 1)) * 100;
-                    return (
-                      <div 
-                        key={`v-${index}`} 
-                        className="vertical-grid-line"
-                        style={{ left: `${position}%` }}
-                      ></div>
-                    );
-                  })}
+                  {/* 右侧Y轴百分比水平网格线 */}
+                  {[20, 15, 10, 5, 0, -5, -10].map((value, index) => (
+                    <div 
+                      key={`h-percent-${index}`} 
+                      className="horizontal-grid-line-percent"
+                      style={{ 
+                        bottom: `${getPercentageYPosition(value)}%`,
+                      }}
+                    ></div>
+                  ))}
                 </div>
                 
                 {/* 柱状图 - 利润数据 - 使用固定最大值 */}
@@ -349,7 +348,9 @@ const formatPercentage = (num) => {
                         className="bar"
                         style={{ 
                           height: `${barHeight}%`,
-                          left: `${barPosition}%`
+                          left: `${barPosition}%`,
+                          // 确保柱状图从底部正确开始
+                          bottom: 0
                         }}
                         onMouseEnter={(e) => handleMouseEnter(item, e)}
                         onMouseLeave={handleMouseLeave}
@@ -477,19 +478,21 @@ const formatPercentage = (num) => {
                 )}
               </div>
               
-              {/* 右侧Y轴 - 现在显示利润（交换后） */}
+              {/* 右侧Y轴 */}
               <div className="right-y-axis">
                 <div className="axis-title">百分比</div>
-                {generateYAxisTicks().map((value, index) => (
+                  {[20, 15, 10, 5, 0, -5, -10].map((value, index) => (
                   <div 
                     key={index} 
                     className="y-axis-tick"
-                    style={{ bottom: `${(value / FIXED_MAX_VALUE) * 100}%` }}
+                    style={{ bottom: `${getPercentageYPosition(value)}%` }}
                   >
-                    {formatNumber(value)}
+                    {value}%
                   </div>
                 ))}
               </div>
+
+
             </div>
             
             {/* 复选框切换 */}
