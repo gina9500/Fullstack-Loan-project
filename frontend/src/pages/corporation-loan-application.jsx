@@ -98,8 +98,7 @@ const handleFileChange = async (name, event) => {
         chartMaxValue: parsedData.maxValue
       }));
       
-      // 显示解析成功提示
-      alert('财务数据解析成功！将在确认页面显示图表。');
+
     } catch (error) {
       alert('文件解析失败: ' + error.message);
       // 仍然保存文件，但不更新财务数据
