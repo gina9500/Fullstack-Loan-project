@@ -83,14 +83,14 @@ const handleBack = () => {
 };
 
 const profitData = applicationData?.financialData || [
-  { period: '2023.1Q', value: 20911231, yearOnYear: "", chainRatio: "0.1" },
-  { period: '2023.2Q', value: 20922210, yearOnYear: "", chainRatio: "-0.4" },
-  { period: '2023.3Q', value: 20845238, yearOnYear: "", chainRatio: "5.3" },
-  { period: '2023.4Q', value: 21953132, yearOnYear: "", chainRatio: "-4.6" },
-  { period: '2024.1Q', value: 20943983, yearOnYear: "0.2%", chainRatio: "9.7" },
-  { period: '2024.2Q', value: 22983143, yearOnYear: "9.9", chainRatio: "0.5" },
-  { period: '2024.3Q', value: 23087998, yearOnYear: "10.8", chainRatio: "7.3" },
-  { period: '2024.4Q', value: 24762999, yearOnYear: "12.8", chainRatio: "" }
+  { period: '2023.1Q', value: 20911231, yearOnYear: "", chainRatio: "0.1%" },
+  { period: '2023.2Q', value: 20922210, yearOnYear: "", chainRatio: "-0.4%" },
+  { period: '2023.3Q', value: 20845238, yearOnYear: "", chainRatio: "5.3%" },
+  { period: '2023.4Q', value: 21953132, yearOnYear: "", chainRatio: "-4.6%" },
+  { period: '2024.1Q', value: 20943983, yearOnYear: "0.2%", chainRatio: "9.7%" },
+  { period: '2024.2Q', value: 22983143, yearOnYear: "9.9%", chainRatio: "0.5%" },
+  { period: '2024.3Q', value: 23087998, yearOnYear: "10.8%", chainRatio: "7.3%" },
+  { period: '2024.4Q', value: 24762999, yearOnYear: "12.8%", chainRatio: "" }
 ];
 
 // 移除动态计算的最大值，使用固定最大值25000000
@@ -104,37 +104,89 @@ const formatNumber = (num) => {
   });
 };
 
-  // 格式化百分比显示
+// 格式化百分比显示
 const formatPercentage = (num) => {
-  return num.toFixed(1);
-};
+  // 安全处理：如果是字符串，去掉百分号；如果是数字，直接使用
+  const numValue = typeof num === 'string' 
+    ? parseFloat(num.replace('%', '')) 
+    : parseFloat(num);
   
+  return isNaN(numValue) ? '0.0' : numValue.toFixed(1);
+};
   // 生成Y轴刻度的函数 - 返回固定的利润数字序列
  const generateYAxisTicks = () => {
   return [25000000, 20000000, 15000000, 10000000, 5000000, 0];
 };
 
-  // 计算百分比数据点的Y坐标位置
-  const getPercentageYPosition = (value) => {
-    // 假设百分比范围是 -10% 到 20%
-    const minPercentage = -10;
-    const maxPercentage = 20;
-    const range = maxPercentage - minPercentage;
-    return ((value - minPercentage) / range) * 100;
-  };
+    // 计算百分比数据点的Y坐标位置
+const getPercentageYPosition = (value) => {
+  if (value === '' || value === null || value === undefined) {
+    return 0;
+  }
+  
+  // 安全处理：如果是字符串，去掉百分号；如果是数字，直接使用
+  const numValue = typeof value === 'string' 
+    ? parseFloat(value.replace('%', '')) 
+    : parseFloat(value);
+  
+  if (isNaN(numValue)) {
+    return 0;
+  }
+  
+  // 百分比范围是 -10% 到 20%
+  const minPercentage = -10;
+  const maxPercentage = 20;
+  const range = maxPercentage - minPercentage;
+  
+  // 确保值在范围内
+  const clampedValue = Math.max(minPercentage, Math.min(maxPercentage, numValue));
+  
+  // 计算位置：值越大，Y坐标越小（SVG坐标从顶部开始）
+  return 100 - ((clampedValue - minPercentage) / range) * 100;
+};
+
 
   // 生成折线图路径
-  const generateLinePath = (data, property) => {
-    if (!data || data.length === 0) return '';
+const generateLinePath = (data, property) => {
+  if (!data || data.length === 0) return '';
+  
+  console.log('Generating path for:', property);
+  console.log('Original data:', data.length, 'items');
+  
+  // 只过滤出有有效数据的点
+  const validPoints = data.filter(item => {
+    if (item[property] === '' || item[property] === null || item[property] === undefined) {
+      return false;
+    }
     
-    const points = data.map((item, index) => {
-      const x = (index / (data.length - 1)) * 100;
-      const y = 100 - getPercentageYPosition(item[property]);
-      return `${x},${y}`;
-    });
+    // 安全处理：如果是字符串，去掉百分号；如果是数字，直接使用
+    const value = typeof item[property] === 'string' 
+      ? parseFloat(item[property].replace('%', '')) 
+      : parseFloat(item[property]);
     
-    return `M ${points.join(' L ')}`;
-  };
+    return !isNaN(value);
+  });
+  
+  console.log('Valid points:', validPoints.length, 'items');
+  
+  if (validPoints.length === 0) return '';
+  
+  // 生成路径点 - 使用原始数组中的索引计算X坐标
+  const points = validPoints.map((item) => {
+    // 找到在原始数组中的索引
+    const originalIndex = data.findIndex(d => d.period === item.period);
+    // 使用原始索引计算X坐标，与数据点标记保持一致
+    const x = (originalIndex / (data.length - 1)) * 100;
+    const y = getPercentageYPosition(item[property]);
+    console.log(`Point ${item.period}: x=${x}%, y=${y}%, value=${item[property]}`);
+    return `${x},${y}`;
+  });
+  
+  // 确保路径格式正确
+  const path = `M ${points.join(' L ')}`;
+  console.log('Generated path:', path);
+  return path;
+};
 
   // 处理悬停事件
   const handleMouseEnter = (data, event) => {
@@ -368,65 +420,85 @@ const formatPercentage = (num) => {
                   <div className="line-chart">
                     <svg className="chart-svg" width="100%" height="100%">
                       {/* 同比折线 - 蓝色实线 */}
-                      {showYearOnYear && (
-                        <>
-                          <path 
-                            d={generateLinePath(profitData, 'yearOnYear')}
-                            className="line year-on-year-line"
-                            fill="none"
-                            stroke="#0000ff"
-                            strokeWidth="2"
-                          />
-                          {/* 同比数据标签 */}
-                          {profitData.map((item, index) => {
-                            const x = (index / (profitData.length - 1)) * 100;
-                            const y = 100 - getPercentageYPosition(item.yearOnYear);
-                            return (
-                              <text 
-                                key={`yoy-label-${index}`} 
-                                x={`${x}%`} 
-                                y={`${y - 12}%`} 
-                                textAnchor="middle"
-                                className="data-label year-on-year-label"
-                                fill="#0000ff"
-                              >
-                                {formatPercentage(item.yearOnYear)}%
-                              </text>
-                            );
-                          })}
-                        </>
-                      )}
+{showYearOnYear && (
+  <>
+ <path 
+  d={generateLinePath(profitData, 'yearOnYear')}
+  className="line year-on-year-line"
+  fill="none"
+  stroke="#000000"
+  strokeWidth="3" // 增加线条宽度，确保可见
+  strokeDasharray="none"
+  strokeOpacity="1" // 确保不透明
+  strokeLinecap="round" // 线条末端圆润
+  strokeLinejoin="round" // 线条连接点圆润
+/>
+
+{/* 添加数据点标记 */}
+{profitData.map((item, index) => {
+  if (item.yearOnYear === '' || item.yearOnYear === null || item.yearOnYear === undefined) {
+    return null;
+  }
+  
+  // 安全处理：如果是字符串，去掉百分号；如果是数字，直接使用
+  const value = typeof item.yearOnYear === 'string' 
+    ? parseFloat(item.yearOnYear.replace('%', '')) 
+    : parseFloat(item.yearOnYear);
+  
+  if (isNaN(value)) return null;
+  
+  // 确保与路径生成使用完全相同的X坐标计算方式
+  const x = (index / (profitData.length - 1)) * 100;
+  const y = getPercentageYPosition(item.yearOnYear);
+  
+  console.log(`Data point ${item.period}: x=${x}%, y=${y}%, value=${item.yearOnYear}`);
+  
+  return (
+    <circle
+      key={`yoy-point-${index}`}
+      cx={`${x}%`}
+      cy={`${y}%`}
+      r="4"
+      fill="#000000"
+      stroke="#000000"
+      strokeWidth="2"
+    />
+  );
+})}
+{/* 同比数据标签 */}
+{profitData.map((item, index) => {
+  if (item.yearOnYear === '' || item.yearOnYear === null || item.yearOnYear === undefined) {
+    return null;
+  }
+  
+  // 安全处理：如果是字符串，去掉百分号；如果是数字，直接使用
+  const value = typeof item.yearOnYear === 'string' 
+    ? parseFloat(item.yearOnYear.replace('%', '')) 
+    : parseFloat(item.yearOnYear);
+  
+  if (isNaN(value)) return null;
+  
+  // 使用与路径生成相同的X坐标计算方式
+  const x = (index / (profitData.length - 1)) * 100;
+  const y = getPercentageYPosition(item.yearOnYear);
+  
+  return (
+    <text 
+      key={`yoy-label-${index}`} 
+      x={`${x}%`} 
+      y={`${y - 8}%`}
+      textAnchor="middle"
+      className="data-label year-on-year-label"
+      fill="#000000"
+      fontSize="12px"
+    >
+      {formatPercentage(value)}%
+    </text>
+  );
+})}
+  </>
+)}
                       
-                      {/* 环比折线 - 绿色虚线 */}
-                      {showChainRatio && (
-                        <>
-                          <path 
-                            d={generateLinePath(profitData, 'chainRatio')}
-                            className="line chain-ratio-line"
-                            fill="none"
-                            stroke="#008000"
-                            strokeWidth="2"
-                            strokeDasharray="5,5"
-                          />
-                          {/* 环比数据标签 */}
-                          {profitData.map((item, index) => {
-                            const x = (index / (profitData.length - 1)) * 100;
-                            const y = 100 - getPercentageYPosition(item.chainRatio);
-                            return (
-                              <text 
-                                key={`cr-label-${index}`} 
-                                x={`${x}%`} 
-                                y={`${y + 15}%`} 
-                                textAnchor="middle"
-                                className="data-label chain-ratio-label"
-                                fill="#008000"
-                              >
-                                {formatPercentage(item.chainRatio)}%
-                              </text>
-                            );
-                          })}
-                        </>
-                      )}
                     </svg>
                   </div>
                 )}
@@ -479,18 +551,19 @@ const formatPercentage = (num) => {
               </div>
               
               {/* 右侧Y轴 */}
-              <div className="right-y-axis">
-                <div className="axis-title">百分比</div>
-                  {[20, 15, 10, 5, 0, -5, -10].map((value, index) => (
-                  <div 
-                    key={index} 
-                    className="y-axis-tick"
-                    style={{ bottom: `${getPercentageYPosition(value)}%` }}
-                  >
-                    {value}%
-                  </div>
-                ))}
-              </div>
+   {/* 右侧Y轴 */}
+<div className="right-y-axis">
+  <div className="axis-title">百分比</div>
+    {[20, 15, 10, 5, 0, -5, -10].map((value, index) => (
+    <div 
+      key={index} 
+      className="y-axis-tick"
+      style={{ bottom: `${getPercentageYPosition(value)}%` }} // 使用相同的函数计算位置
+    >
+      {value}%
+    </div>
+  ))}
+</div>
 
 
             </div>
