@@ -154,13 +154,12 @@ const handleFileChange = async (name, event) => {
     if (formData.companyEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.companyEmail)) {
       newErrors.companyEmail = 'Please enter a valid email address';
     }
-    // 验证贷款申请金额
-    // 数字/整数或小数/如果是小数，最多只能有两位小数/必须大于0
+    // 验证贷款申请金额(12/2 2nd review bug修正)
+    // 规则：数字/整数或小数/如果是小数，最多只能有两位小数/必须大于0/0开头必须有小数点
     if (!formData.loanAmount.trim()) newErrors.loanAmount = 'Loan amount is required';
-    if (formData.loanAmount && (!/^\d+(\.\d{1,2})?$/.test(formData.loanAmount) || parseFloat(formData.loanAmount) <= 0)) {
+    if (formData.loanAmount && (!/^(?:0\.\d{1,2}|[1-9]\d*(?:\.\d{1,2})?)$/.test(formData.loanAmount) || parseFloat(formData.loanAmount) <= 0)) {
       newErrors.loanAmount = 'Please enter a valid positive number';
     }
-
     // 必填字段验证
     if (!formData.loanTerm) newErrors.loanTerm = 'Loan term is required';
     if (!formData.loanPurpose) newErrors.loanPurpose = 'Loan purpose is required';

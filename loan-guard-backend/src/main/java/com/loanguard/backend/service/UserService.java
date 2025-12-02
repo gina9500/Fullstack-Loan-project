@@ -1,5 +1,7 @@
 package com.loanguard.backend.service;
 
+import com.loanguard.backend.common.ErrorCode;
+import com.loanguard.backend.common.ServiceException;
 import com.loanguard.backend.model.User;
 import com.loanguard.backend.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,19 +12,28 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
-    public User findByUsername(String username) {
-        return userMapper.findByUsername(username);
-    }
+    /**
+     * 用户验证方法
+     * 
+     * @param userId   用户名
+     * @param password 密码
+     * @return 验证成功返回用户信息
+     * @throws ServiceException 当验证失败时抛出异常
+     */
+    public User auth(String userId, String password) {
+        // 根据用户名查找用户
+        User user = userMapper.findByUserId(userId);
 
-    public User findById(Long id) {
-        return userMapper.findById(id);
-    }
+        // 判断用户是否存在
+        if (user == null) {
+            throw new ServiceException(ErrorCode.USER_NOT_EXIST.getMessage(), ErrorCode.USER_NOT_EXIST.getCode());
+        }
 
-    public int insert(User user) {
-        return userMapper.insert(user);
-    }
+        // 判断密码是否正确
+        if (!user.getPassword().equals(password)) {
+            throw new ServiceException(ErrorCode.PASSWORD_ERROR.getMessage(), ErrorCode.PASSWORD_ERROR.getCode());
+        }
 
-    public int update(User user) {
-        return userMapper.update(user);
+        return user;
     }
 }

@@ -78,7 +78,7 @@ const Login = () => {
    * 处理表单提交
    * 阻止表单默认提交行为，验证表单，调用登录API，并根据结果跳转页面
    */
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
 
     // 先验证表单，不通过则不进行后续操作
@@ -90,12 +90,24 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // 模拟登录成功，根据用户类型跳转到不同页面
-      // 在开发环境中跳过实际API调用，直接进行页面跳转
-      // const response = await login(formData);
+      // 调用登录API获取响应
+      const response = await login(formData);
+
+      console.log("登录响应:", response);
       
+      // 检查API返回的success字段
+      if (response && response.success === false) {
+        // 如果success为false，显示错误信息并阻止跳转
+        setErrors({
+          ...errors,
+          submit: response.message || '登录失败，请稍后重试'
+        });
+        return; // 不执行后续代码，阻止跳转
+      }
+      
+      // 只有当success不为false时才进行页面跳转
       // 根据用户名中是否包含'per'来判断是个人用户还是企业用户
-      if (formData.userId.toLowerCase().includes('per')) {
+      if (response.data.toLowerCase().includes('per')) {
         // 个人用户跳转到个人入力页面
         navigate('/personal-loan-application');
       } else {
@@ -103,13 +115,12 @@ const Login = () => {
         navigate('/corporation-loan-application');
       }
     } catch (error) {
-      // 即使API调用失败，根据用户名进行跳转（模拟开发测试）
+      // 处理API调用错误
       console.error('登录API调用失败:', error);
-      if (formData.userId.toLowerCase().includes('ind')) {
-        navigate('/personal-loan-application');
-      } else {
-        navigate('/corporation-loan-application');
-      }
+      setErrors({
+        ...errors,
+        submit: '网络错误，请检查您的网络连接'
+      });
     } finally {
       // 无论成功失败，都在最后将加载状态设为false
       setIsLoading(false);
@@ -122,13 +133,9 @@ const Login = () => {
       <div className="login-container">
         <h1 className="login-title">Login</h1>
         
-        {errors.submit && (
-          <div className="submit-error">{errors.submit}</div>
-        )}
-        
         {/* 登录表单 */}
         <form onSubmit={handleSubmit} className="login-form">
-          {/* 用户ID输入字段 */}
+          {/* 用户ID */}
           <InputField
             label="User id"
             name="userId"
@@ -139,7 +146,7 @@ const Login = () => {
             required
           />
           
-          {/* 密码输入字段 */}
+          {/* 密码 */}
           <InputField
             label="Password"
             name="password"
@@ -150,6 +157,11 @@ const Login = () => {
             error={errors.password}
             required
           />
+
+        {/* 后端返回的错误信息 */}
+        {errors.submit && (
+          <div className="submit-error">{errors.submit}</div>
+        )}
           
           {/* 登录按钮，加载状态下禁用 */}
           <button 
