@@ -134,32 +134,12 @@
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .chart-content {
-    flex-direction: column;
-    height: 500px;
-  }
-
-  .left-y-axis,
-  .right-y-axis {
-    width: 100px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .chart-main {
-    margin: 10px 0;
-    height: calc(100% - 80px);
-  }
 
   .form-style {
     grid-template-columns: 1fr;
   }
 
-  .chart-legend {
-    flex-direction: column;
-    gap: 10px;
-  }
+
 
   .back-button,
   .confirm-button {
@@ -168,25 +148,4 @@
     padding: 10px;
   }
 
-  .y-axis-tick {
-    font-size: 10px;
-  }
-
-  .bar {
-    width: 20px;
-  }
-
-  .x-axis-label {
-    font-size: 10px;
-  }
-
-  .chart-toggle {
-    padding-left: 70px;
-  }
-
-  .tooltip {
-    font-size: 10px;
-    min-width: 100px;
-    padding: 8px;
-  }
 }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line } from 'recharts';
 
+// 财务数据图表
 const initialProfitData = [
   { period: '2023.1Q', value: 20911231, yearOnYear: "", chainRatio: "0.1%" },
   { period: '2023.2Q', value: 20922210, yearOnYear: "", chainRatio: "-0.4%" },

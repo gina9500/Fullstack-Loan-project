@@ -102,7 +102,6 @@ const handleBack = () => {
   return (
     <BaseLayout title="Loan Information Confirmation">
       <div className="loan-information-confirmation">
-        {/* 删除企业确认画面标题 */}
         <h2 style={{ textAlign: 'center' }}>Loan Information Confirmation</h2>
         
         {/* 贷款类型标识 */}
@@ -209,7 +208,7 @@ const handleBack = () => {
         </div>
         
         <div className="chart-container">
-          {/* 直接使用FinancialChart组件 */}
+          {/* 使用FinancialChart组件 */}
           <FinancialChart />
         </div>
       </div>
