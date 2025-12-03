@@ -174,71 +174,82 @@ const handleFileChange = async (name, event) => {
   /**
  * 处理表单提交
  */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    alert('表单提交被触发！');
+  const isValid = validateForm();
 
-    const isValid = validateForm();
+  if (!isValid) {
+    return;
+  }
 
-    if (!isValid) {
-      return;
-    }
+  setIsSubmitting(true);
 
-    setIsSubmitting(true);
+  try {
+    const propProofDocsName = formData.propProofDocs?.name || null;
 
-    try {
-
-      const propProofDocsName = formData.propProofDocs?.name || null;
-
-      // 由于没有后端API，模拟保存表单数据到localStorage并跳转到确认页面
-      const serializableData = {
-        entName: formData.entName,
-        uscc: formData.uscc,
-        companyEmail: formData.companyEmail,
-        companyAddress: formData.companyAddress,
-        repayAccountBank: formData.repayAccountBank,
-        repayAccountNo: formData.repayAccountNo,
-        loanAmount: formData.loanAmount,
-        loanTerm: formData.loanTerm,
-        loanPurpose: formData.loanPurpose,
-        propProofType: formData.propProofType,
-        industryCategory: formData.industryCategory,
-        // 添加文件名字段
-        propProofDocsName: propProofDocsName,
-          // 添加财务数据
+    // 构建可序列化的数据对象
+    const serializableData = {
+      entName: formData.entName,
+      uscc: formData.uscc,
+      companyEmail: formData.companyEmail,
+      companyAddress: formData.companyAddress,
+      repayAccountBank: formData.repayAccountBank,
+      repayAccountNo: formData.repayAccountNo,
+      loanAmount: formData.loanAmount,
+      loanTerm: formData.loanTerm,
+      loanPurpose: formData.loanPurpose,
+      propProofType: formData.propProofType,
+      industryCategory: formData.industryCategory,
+      propProofDocsName: propProofDocsName,
       financialData: formData.financialData,
       chartMaxValue: formData.chartMaxValue
-      };
+    };
 
-      localStorage.setItem('loanApplication', JSON.stringify(serializableData));
-
+    // 调用后端API进行数据验证和提交
+    const response = await submitCorporationLoan(serializableData);
+    
+    if (response.success) {
+      // 保存验证通过后的数据到localStorage用于确认页面显示
+      localStorage.setItem('loanApplication', JSON.stringify(response.data || serializableData));
+      
       // 设置retainData标记，用于指示需要保留数据
       localStorage.setItem('retainData', 'true');
-
+      
       // 跳转到确认页面
       window.location.href = '/loan-information-confirmation';
-
-      /*
-      // 以下是原有的API调用代码，暂时注释掉
-      // 模拟提交成功
-      const response = await submitCorporationLoan(serializableData);
-      // if (response.success) {
-      if (true) {
-        // Save application info to localStorage for confirmation page
-        // localStorage.setItem('loanApplication', JSON.stringify(response.data));
-        window.location.href = '/loan-information-confirmation';
-      } else {
-        alert('Application submission failed: ' + response.message);
+    } else {
+      // 处理后端返回的错误信息
+      // 假设后端返回的错误格式为 {success: false, message: '错误信息', fieldErrors: {字段名: '字段错误信息'}} 
+      const newErrors = {};
+      
+      // 如果有字段级别的错误，将它们添加到错误对象中
+      if (response.fieldErrors && typeof response.fieldErrors === 'object') {
+        Object.assign(newErrors, response.fieldErrors);
       }
-      */
-    } catch (error) {
-      console.error('Error during submission process:', error);
-      alert('An error occurred, please try again');
-    } finally {
-      setIsSubmitting(false);
+      
+      // 如果有全局错误信息，设置为提交错误
+      if (response.message) {
+        newErrors.submit = response.message;
+      }
+      
+      // 更新错误状态，在页面上显示错误信息
+      setErrors(newErrors);
+      
+      // 可选：滚动到页面顶部以便用户看到错误信息
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  };
+  } catch (error) {
+    console.error('提交过程中发生错误:', error);
+    
+    // 处理网络错误或其他异常
+    setErrors({ 
+      submit: '网络错误，请稍后重试。如果问题持续，请联系客服。'
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   // 还款账户银行
   const bankOptions = [
@@ -454,6 +465,10 @@ const handleFileChange = async (name, event) => {
               />
             </div>
           </div>
+
+          {errors.submit && (
+  <div className="error-message-submit">{errors.submit}</div>
+)}
 
           <div className="form-actions">
             <button

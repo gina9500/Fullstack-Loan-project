@@ -4,7 +4,7 @@ import org.apache.ibatis.type.Alias;
 import lombok.Data;
 
 /**
- * 用户模型类
+ * 用户实体类
  * 与数据库表user对应
  */
 @Data

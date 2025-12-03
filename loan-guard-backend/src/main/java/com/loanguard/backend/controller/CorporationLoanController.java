@@ -3,7 +3,7 @@ package com.loanguard.backend.controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/corporation-loans")
+@RequestMapping("/api/loan")
 public class CorporationLoanController {
 
 }

@@ -11,9 +11,8 @@ public enum ErrorCode {
     // 登录相关错误码
     USERNAME_EMPTY("4001", "用户名不能为空"),
     PASSWORD_EMPTY("4002", "密码不能为空"),
-    USERNAME_PASSWORD_ERROR("4003", "用户名或密码错误"),
-    USER_NOT_EXIST("4004", "用户不存在"),
-    PASSWORD_ERROR("4005", "密码错误"),
+    USER_NOT_EXIST("4003", "用户不存在"),
+    PASSWORD_ERROR("4004", "密码错误"),
 
     // 业务相关错误码
     OPERATION_FAILED("5001", "操作失败");

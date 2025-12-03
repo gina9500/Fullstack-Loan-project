@@ -13,7 +13,7 @@ public class UserService {
     private UserMapper userMapper;
 
     /**
-     * 用户验证方法
+     * 用户验证
      * 
      * @param userId   用户名
      * @param password 密码

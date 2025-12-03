@@ -7,7 +7,7 @@ import { post, get } from '../utils/request';
  * @returns {Promise} - 返回Promise对象
  */
 export async function submitCorporationLoan(data) {
-  return post('/loan/corporation/submit', data);
+  return post('/loan/corporationSubmit', data);
 }
 
 /**
