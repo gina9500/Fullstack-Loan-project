@@ -62,12 +62,17 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- Spring Boot通常已包含Jackson，如未包含则添加 -->
-		<dependency>
-		    <groupId>com.fasterxml.jackson.core</groupId>
-		    <artifactId>jackson-databind</artifactId>
-		</dependency>
-	</dependencies>
+		<!-- 用于文件上传的依赖 -->
+<dependency>
+    <groupId>commons-fileupload</groupId>
+    <artifactId>commons-fileupload</artifactId>
+    <version>1.4</version>
+</dependency>
+ 
+ 
+ 
+
+ </dependencies>
 
 	<build>
 		<plugins>

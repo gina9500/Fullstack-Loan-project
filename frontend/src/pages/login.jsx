@@ -42,6 +42,14 @@ const Login = () => {
         [name]: ''
       });
     }
+    // 清除提交错误，当用户开始输入时
+    if (errors.submit) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.submit;
+        return newErrors;
+      });
+    }
   };
 
   /**
@@ -76,38 +84,36 @@ const Login = () => {
 
   /**
    * 处理表单提交
-   * 阻止表单默认提交行为，验证表单，调用登录API，并根据结果跳转页面
    */
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     // 先验证表单，不通过则不进行后续操作
     if (!validateForm()) {
       return;
     }
-
+    
     // 设置加载状态为true，显示加载提示
     setIsLoading(true);
-
+    
     try {
       // 调用登录API获取响应
       const response = await login(formData);
-
+    
       console.log("登录响应:", response);
       
-      // 检查API返回的success字段
+      // 检查API返回的success传回来的值
       if (response && response.success === false) {
-        // 如果success为false，显示错误信息并阻止跳转
         setErrors({
           ...errors,
           submit: response.message || '登录失败，请稍后重试'
         });
-        return; // 不执行后续代码，阻止跳转
+        return; 
       }
-      
+    
       // 只有当success不为false时才进行页面跳转
       // 根据用户名中是否包含'per'来判断是个人用户还是企业用户
-      if (response.data.toLowerCase().includes('per')) {
+      if (response.data.role.toLowerCase().includes('per')) {
         // 个人用户跳转到个人入力页面
         navigate('/personal-loan-application');
       } else {
@@ -117,19 +123,32 @@ const Login = () => {
     } catch (error) {
       // 处理API调用错误
       console.error('登录API调用失败:', error);
+      
+      // 错误信息处理
+      let errorMessage;
+      
+      if (error.isNetworkError) {
+        errorMessage = '网络连接失败，请检查您的网络连接后重试';
+      } else if (error.status === 500) {
+        errorMessage = '服务器无法处理请求，请稍后再试。';
+      } else if (error.status === 401) {
+        errorMessage = '用户名或密码错误，请重新输入';
+      } else {
+        errorMessage = error.data?.message || error.message || '登录过程中出现错误，请稍后重试';
+      }
+      
       setErrors({
         ...errors,
-        submit: '网络错误，请检查您的网络连接'
+        submit: errorMessage
       });
     } finally {
-      // 无论成功失败，都在最后将加载状态设为false
+      // 无论成功失败最后将加载状态设为false
       setIsLoading(false);
     }
   };
 
   // 组件渲染
   return (
-
       <div className="login-container">
         <h1 className="login-title">Login</h1>
         
@@ -173,7 +192,6 @@ const Login = () => {
           </button>
         </form>
       </div>
-
   );
 };
 

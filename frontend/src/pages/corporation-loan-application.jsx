@@ -6,7 +6,6 @@ import SelectField from '../components/form/SelectField';
 import FileUploadField from '../components/form/FileUploadField';
 import { submitCorporationLoan } from '../api/loan';
 import './corporation-loan-application.css';
-import { parseExcelToJson, isValidExcelFile } from '../utils/excelParser';
 
 
 /**
@@ -28,12 +27,7 @@ const CorporationLoanApplication = () => {
     loanPurpose: '',        // 贷款用途
     propProofType: '',      // 财产证明类型
     industryCategory: '',   // 行业类别
-    businessLicenseFile: null,      // 营业执照文件
-    financialReportFile: null,      // 财务报表文件
-    taxCertificateFile: null,       // 税务证明文件
-    propProofDocs: null,            // 财产证明文件
-    financialData: null, // 用于存储解析后的财务数据
-    chartMaxValue: 30000000 // 图表最大值
+    propProofDocs: null,    // 财产证明文件（JSON文件）
   });
 
   // 从localStorage恢复数据
@@ -69,7 +63,8 @@ const CorporationLoanApplication = () => {
       [name]: value
     }));
 
-    // 当用户修改输入字段时更新表单数据，并清除对应字段的错误信息
+    // 当用户修改输入字段时更新表单数据
+    // 并清除对应字段的错误信息
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -85,28 +80,19 @@ const handleFileChange = async (name, event) => {
   const file = event && event.target && event.target.files ? event.target.files[0] : null;
   console.log('文件上传:', name, '事件类型:', typeof event, '文件对象:', file);
   
-  // 如果是财产证明文件且为Excel文件，尝试解析
-  if (name === 'propProofDocs' && file && isValidExcelFile(file)) {
-    try {
-      // 解析Excel文件
-      const parsedData = await parseExcelToJson(file);
-      
-      setFormData(prev => ({
-        ...prev,
-        [name]: file,
-        financialData: parsedData.formattedData,
-        chartMaxValue: parsedData.maxValue
-      }));
-      
-
-    } catch (error) {
-      alert('文件解析失败: ' + error.message);
-      // 仍然保存文件，但不更新财务数据
-      setFormData(prev => ({
-        ...prev,
-        [name]: file
-      }));
+  // 修改为接受JSON文件而不是Excel文件
+  if (name === 'propProofDocs' && file) {
+    // 只检查文件扩展名是否为.json
+    if (!file.name.endsWith('.json')) {
+      alert('请上传JSON文件(.json格式)');
+      return;
     }
+    
+    // 直接保存文件，不进行前端解析
+    setFormData(prev => ({
+      ...prev,
+      [name]: file
+    }));
   } else {
     // 其他文件类型的处理
     setFormData(prev => ({
@@ -150,12 +136,10 @@ const handleFileChange = async (name, event) => {
       newErrors.repayAccountNo = 'Account number must be 19 digits';
     }
     // 验证邮箱格式
-    // 不能包含空格字符/必须包含一个 @ 符号/@ 符号前后必须有内容/必须包含一个点号 (.) /点号前后必须有内容
     if (formData.companyEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.companyEmail)) {
       newErrors.companyEmail = 'Please enter a valid email address';
     }
-    // 验证贷款申请金额(12/2 2nd review bug修正)
-    // 规则：数字/整数或小数/如果是小数，最多只能有两位小数/必须大于0/0开头必须有小数点
+    // 验证贷款申请金额
     if (!formData.loanAmount.trim()) newErrors.loanAmount = 'Loan amount is required';
     if (formData.loanAmount && (!/^(?:0\.\d{1,2}|[1-9]\d*(?:\.\d{1,2})?)$/.test(formData.loanAmount) || parseFloat(formData.loanAmount) <= 0)) {
       newErrors.loanAmount = 'Please enter a valid positive number';
@@ -171,14 +155,13 @@ const handleFileChange = async (name, event) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  /**
- * 处理表单提交
- */
+ /**
+  * 表单提交
+  */
 const handleSubmit = async (e) => {
   e.preventDefault();
 
   const isValid = validateForm();
-
   if (!isValid) {
     return;
   }
@@ -186,10 +169,8 @@ const handleSubmit = async (e) => {
   setIsSubmitting(true);
 
   try {
-    const propProofDocsName = formData.propProofDocs?.name || null;
-
-    // 构建可序列化的数据对象
-    const serializableData = {
+    // 准备要发送的数据（排除文件）
+    const dataToSend = {
       entName: formData.entName,
       uscc: formData.uscc,
       companyEmail: formData.companyEmail,
@@ -200,18 +181,20 @@ const handleSubmit = async (e) => {
       loanTerm: formData.loanTerm,
       loanPurpose: formData.loanPurpose,
       propProofType: formData.propProofType,
-      industryCategory: formData.industryCategory,
-      propProofDocsName: propProofDocsName,
-      financialData: formData.financialData,
-      chartMaxValue: formData.chartMaxValue
+      industryCategory: formData.industryCategory || ''
     };
-
-    // 调用后端API进行数据验证和提交
-    const response = await submitCorporationLoan(serializableData);
     
+    // 调用API，传入数据对象和文件
+    const response = await submitCorporationLoan(dataToSend, formData.propProofDocs);
+    
+    // 处理响应...
     if (response.success) {
       // 保存验证通过后的数据到localStorage用于确认页面显示
-      localStorage.setItem('loanApplication', JSON.stringify(response.data || serializableData));
+      const savedData = {
+        ...formData,
+        propProofDocsName: formData.propProofDocs?.name || null
+      };
+      localStorage.setItem('loanApplication', JSON.stringify(response.data || savedData));
       
       // 设置retainData标记，用于指示需要保留数据
       localStorage.setItem('retainData', 'true');
@@ -220,36 +203,17 @@ const handleSubmit = async (e) => {
       window.location.href = '/loan-information-confirmation';
     } else {
       // 处理后端返回的错误信息
-      // 假设后端返回的错误格式为 {success: false, message: '错误信息', fieldErrors: {字段名: '字段错误信息'}} 
-      const newErrors = {};
-      
-      // 如果有字段级别的错误，将它们添加到错误对象中
-      if (response.fieldErrors && typeof response.fieldErrors === 'object') {
-        Object.assign(newErrors, response.fieldErrors);
-      }
-      
-      // 如果有全局错误信息，设置为提交错误
-      if (response.message) {
-        newErrors.submit = response.message;
-      }
-      
-      // 更新错误状态，在页面上显示错误信息
-      setErrors(newErrors);
-      
-      // 可选：滚动到页面顶部以便用户看到错误信息
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setErrors({ submit: response.message || '提交失败' });
     }
+    
   } catch (error) {
     console.error('提交过程中发生错误:', error);
-    
-    // 处理网络错误或其他异常
-    setErrors({ 
-      submit: '网络错误，请稍后重试。如果问题持续，请联系客服。'
-    });
+    setErrors({ submit: '提交失败，请稍后重试' });
   } finally {
     setIsSubmitting(false);
   }
 };
+
 
   // 还款账户银行
   const bankOptions = [
@@ -445,12 +409,12 @@ const handleSubmit = async (e) => {
             </div>
             <div className="form-row">
             <FileUploadField
-              label="Property Proof Document"
+              label="Property Proof Document (JSON format)"
               name="propProofDocs"
               onChange={(e) => handleFileChange('propProofDocs', e)}
               error={errors.propProofDocs}
               required
-              placeholder="Please upload your property proof document!"
+              placeholder="Please upload your property proof document (JSON format)!"
 />
             </div>
             <div className="form-row">
@@ -467,8 +431,8 @@ const handleSubmit = async (e) => {
           </div>
 
           {errors.submit && (
-  <div className="error-message-submit">{errors.submit}</div>
-)}
+            <div className="error-message-submit">{errors.submit}</div>
+          )}
 
           <div className="form-actions">
             <button

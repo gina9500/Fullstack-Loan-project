@@ -9,10 +9,11 @@ CREATE TABLE IF NOT EXISTS user (
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+drop table corporation_loan_application;
 -- 创建企业贷款申请表
 CREATE TABLE IF NOT EXISTS corporation_loan_application (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL COMMENT '关联用户ID',
+    user_id VARCHAR(50) NOT NULL COMMENT '关联用户ID',
     ent_name VARCHAR(255) NOT NULL COMMENT '企业名称',
     uscc VARCHAR(18) NOT NULL COMMENT '统一社会信用代码,18位数字',
     company_email VARCHAR(100) NOT NULL COMMENT '企业邮箱',
@@ -27,7 +28,7 @@ CREATE TABLE IF NOT EXISTS corporation_loan_application (
     status VARCHAR(20) DEFAULT 'pending',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user(id)
+    FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
 -- 创建文件表
 CREATE TABLE IF NOT EXISTS file (

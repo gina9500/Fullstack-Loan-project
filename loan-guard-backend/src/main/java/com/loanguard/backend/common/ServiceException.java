@@ -37,4 +37,20 @@ public class ServiceException extends RuntimeException {
         this.code = code;
     }
 
+    /**
+     * 构造函数（带消息和数据）
+     */
+    public ServiceException(String message, Object data) {
+        super(message);
+        this.code = "400";
+        this.data = data;
+    }
+
+    // 添加data字段
+    private Object data;
+
+    public Object getData() {
+        return data;
+    }
+
 }

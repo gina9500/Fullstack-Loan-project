@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Data
 public class CorporationLoan {
     private Long id;
-    private Long userId;
+    private String userId;
     private String entName;
     private String uscc;
     private String companyEmail;
