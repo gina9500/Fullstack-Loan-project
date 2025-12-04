@@ -7,6 +7,7 @@ import FinancialChart from './FinancialChart';
 
 const LoanInformationConfirmation = () => {
   const [applicationData, setApplicationData] = useState(null);
+  const [financialData, setFinancialData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -21,6 +22,16 @@ const LoanInformationConfirmation = () => {
         console.log('解析后的数据:', parsedData);
         console.log('文件名:', parsedData.propProofDocsName);
         setApplicationData(parsedData);
+        
+        // 检查是否有财务数据
+        if (parsedData.financialData && Array.isArray(parsedData.financialData)) {
+          console.log('找到财务数据:', parsedData.financialData);
+          setFinancialData(parsedData.financialData);
+        } else if (parsedData.data && parsedData.data.financialData && Array.isArray(parsedData.data.financialData)) {
+          // 检查嵌套在data对象中的财务数据
+          console.log('找到嵌套的财务数据:', parsedData.data.financialData);
+          setFinancialData(parsedData.data.financialData);
+        }
       } catch (err) {
         console.error('解析申请数据失败:', err);
         // 如果解析失败，使用默认数据
@@ -208,8 +219,8 @@ const handleBack = () => {
         </div>
         
         <div className="chart-container">
-          {/* 使用FinancialChart组件 */}
-          <FinancialChart />
+          {/* 使用FinancialChart组件并传递财务数据 */}
+          <FinancialChart financialData={financialData} />
         </div>
       </div>
         

@@ -1,27 +1,30 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line } from 'recharts';
 
-// 财务数据图表
-const initialProfitData = [
-  { period: '2023.1Q', value: 20911231, yearOnYear: "", chainRatio: "0.1%" },
-  { period: '2023.2Q', value: 20922210, yearOnYear: "", chainRatio: "-0.4%" },
-  { period: '2023.3Q', value: 20845238, yearOnYear: "", chainRatio: "5.3%" },
-  { period: '2023.4Q', value: 21953132, yearOnYear: "", chainRatio: "-4.6%" },
+// 默认财务数据（当没有外部数据传入时使用）
+const defaultProfitData = [
+  { period: '2023.1Q', value: 20000000, yearOnYear: "", chainRatio: "0.1%" },
+  { period: '2023.2Q', value: 21000000, yearOnYear: "", chainRatio: "-0.4%" },
+  { period: '2023.3Q', value: 22000000, yearOnYear: "", chainRatio: "5.3%" },
+  { period: '2023.4Q', value: 23000000, yearOnYear: "", chainRatio: "-4.6%" },
   { period: '2024.1Q', value: 20943983, yearOnYear: "0.2%", chainRatio: "9.7%" },
   { period: '2024.2Q', value: 22983143, yearOnYear: "9.9%", chainRatio: "0.5%" },
   { period: '2024.3Q', value: 23087998, yearOnYear: "10.8%", chainRatio: "7.3%" },
   { period: '2024.4Q', value: 24762999, yearOnYear: "12.8%", chainRatio: "" }
 ];
 
-const FinancialChart = () => {
+const FinancialChart = ({ financialData }) => {
   const [showYearOnYear, setShowYearOnYear] = useState(false);
   const [showChainRatio, setShowChainRatio] = useState(false);
 
   const handleYearOnYearChange = () => setShowYearOnYear(!showYearOnYear);
   const handleChainRatioChange = () => setShowChainRatio(!showChainRatio);
 
+  // 后端传入的数据不为空就用传过来的数据，否则用默认数据
+  const profitData = financialData && financialData.length > 0 ? financialData : defaultProfitData;
+
   // 转换数据：将百分比字符串转换为数字（小数形式）
-  const chartData = initialProfitData.map(item => ({
+  const chartData = profitData.map(item => ({
     ...item,
     yearOnYear: item.yearOnYear ? parseFloat(item.yearOnYear.replace('%', '')) / 100 : null,
     chainRatio: item.chainRatio ? parseFloat(item.chainRatio.replace('%', '')) / 100 : null
