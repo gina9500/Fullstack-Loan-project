@@ -68,6 +68,12 @@
   cursor: not-allowed;
 }
 
+.error-message-check{
+  color: #ff0000;
+  text-align: center;
+
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .form-row {

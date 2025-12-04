@@ -7,11 +7,11 @@ import { get } from '../utils/request';
  * @param {File} file - 财产证明文件
  * @returns {Promise} - 返回Promise对象
  */
-export async function submitCorporationLoan(data, file) {
+export async function checkCorporationLoan(data, file) {
   // 创建FormData对象
   const formData = new FormData();
   
-  // 将所有字段单独添加到FormData
+  // 将表单所有字段单独添加到FormData
   formData.append('entName', data.entName);
   formData.append('uscc', data.uscc);
   formData.append('companyEmail', data.companyEmail);
@@ -37,12 +37,9 @@ export async function submitCorporationLoan(data, file) {
     console.log(`${key}: ${value instanceof File ? value.name : value}`);
   }
   
-  // 尝试不同的连接方式
   try {
-    // 直接使用fetch API
-    const url = 'http://localhost:8080/api/loan/corporation/submit';
-    // 也可以尝试使用127.0.0.1替代localhost
-    // const url = 'http://127.0.0.1:8880/api/loan/corporation/submit';
+
+    const url = 'http://localhost:8080/api/loan/corporation/check';
     
     const response = await fetch(url, {
       method: 'POST',
@@ -64,12 +61,9 @@ export async function submitCorporationLoan(data, file) {
     return await response.json();
   } catch (error) {
     if (error.message.includes('Failed to fetch')) {
-      // 连接错误的特殊处理
-      console.error('后端连接失败，请检查：');
-      console.error('1. 后端服务是否已启动');
-      console.error('2. 端口号是否正确（当前使用8880）');
-      console.error('3. 网络连接是否正常');
-      throw new Error('无法连接到后端服务，请确保服务器已启动并运行在正确的端口上。');
+      // 错误的特殊处理
+      console.error('后端连接失败，请检查');
+      throw new Error('无法连接到后端服务');
     }
     throw error;
   }

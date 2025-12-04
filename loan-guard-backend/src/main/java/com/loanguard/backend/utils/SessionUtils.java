@@ -27,7 +27,6 @@ public class SessionUtils {
     public String getCurrentUserId() {
         HttpSession session = getSession();
         if (session != null) {
-            System.out.println("userId============" + session.getAttribute("userId"));
             return (String) session.getAttribute("userId");
         }
         return null;

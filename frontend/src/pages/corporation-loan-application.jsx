@@ -4,7 +4,7 @@ import BaseLayout from '../components/layout/BaseLayout';
 import InputField from '../components/form/InputField';
 import SelectField from '../components/form/SelectField';
 import FileUploadField from '../components/form/FileUploadField';
-import { submitCorporationLoan } from '../api/loan';
+import { checkCorporationLoan } from '../api/loan';
 import './corporation-loan-application.css';
 
 
@@ -185,8 +185,9 @@ const handleSubmit = async (e) => {
     };
     
     // 调用API，传入数据对象和文件
-    const response = await submitCorporationLoan(dataToSend, formData.propProofDocs);
+    const response = await checkCorporationLoan(dataToSend, formData.propProofDocs);
     
+    console.log('后端返回响应:', response);
     // 处理响应...
     if (response.success) {
       // 保存验证通过后的数据到localStorage用于确认页面显示
@@ -203,7 +204,24 @@ const handleSubmit = async (e) => {
       window.location.href = '/loan-information-confirmation';
     } else {
       // 处理后端返回的错误信息
-      setErrors({ submit: response.message || '提交失败' });
+      const newErrors = {};
+      
+      // 添加全局错误信息
+      if (response.message) {
+        newErrors.check = response.message;
+      }
+      
+      // 添加字段特定的错误信息
+      if (response.data && response.data.fieldErrors) {
+        // 合并字段错误到newErrors对象
+        Object.assign(newErrors, response.data.fieldErrors);
+      } else if (response.fieldErrors) {
+        // 兼容可能的不同响应结构
+        Object.assign(newErrors, response.fieldErrors);
+      }
+      
+      // 更新错误状态
+      setErrors(newErrors);
     }
     
   } catch (error) {
@@ -430,8 +448,8 @@ const handleSubmit = async (e) => {
             </div>
           </div>
 
-          {errors.submit && (
-            <div className="error-message-submit">{errors.submit}</div>
+          {errors.check && (
+            <div className="error-message-check">{errors.check}</div>
           )}
 
           <div className="form-actions">

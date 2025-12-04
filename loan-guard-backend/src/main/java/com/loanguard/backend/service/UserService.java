@@ -1,12 +1,15 @@
 package com.loanguard.backend.service;
 
-import com.loanguard.backend.common.ErrorCode;
+import com.loanguard.backend.common.MsgCode;
 import com.loanguard.backend.common.ServiceException;
 import com.loanguard.backend.model.User;
 import com.loanguard.backend.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * 用户服务层
+ */
 @Service
 public class UserService {
     @Autowired
@@ -26,12 +29,12 @@ public class UserService {
 
         // 判断用户是否存在
         if (user == null) {
-            throw new ServiceException(ErrorCode.USER_NOT_EXIST.getMessage(), ErrorCode.USER_NOT_EXIST.getCode());
+            throw new ServiceException(MsgCode.USER_NOT_EXIST.getMessage(), MsgCode.USER_NOT_EXIST.getCode());
         }
 
         // 判断密码是否正确
         if (!user.getPassword().equals(password)) {
-            throw new ServiceException(ErrorCode.PASSWORD_ERROR.getMessage(), ErrorCode.PASSWORD_ERROR.getCode());
+            throw new ServiceException(MsgCode.PASSWORD_ERROR.getMessage(), MsgCode.PASSWORD_ERROR.getCode());
         }
 
         return user;

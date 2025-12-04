@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * 企业贷款申请请求参数类
+ * 企业贷款表单请求参数类
  */
 @Data
 public class CorporationLoanRequestDTO {

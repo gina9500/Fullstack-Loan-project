@@ -1,97 +1,73 @@
 package com.loanguard.backend.service;
 
-import com.loanguard.backend.common.ErrorCode;
+import com.loanguard.backend.common.MsgCode;
 import com.loanguard.backend.common.ServiceException;
 import com.loanguard.backend.dto.CorporationLoanRequestDTO;
-import com.loanguard.backend.mapper.CorporationLoanMapper;
-import com.loanguard.backend.mapper.FileMapper;
-import com.loanguard.backend.model.CorporationLoan;
-import com.loanguard.backend.model.File;
 import com.loanguard.backend.utils.FileUploadUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * 企业贷款服务层
+ */
 @Service
 public class CorporationLoanService {
 
     @Autowired
-    private CorporationLoanMapper corporationLoanMapper;
-
-    @Autowired
-    private FileMapper fileMapper;
-
-    @Autowired
     private FileUploadUtil fileUploadUtil;
+
+    // JSON解析器
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 提交企业贷款申请
      */
     public Map<String, Object> submitLoanApplication(String userId, CorporationLoanRequestDTO requestDTO,
             MultipartFile propProofDocs) {
-        // 验证请求数据
-        validateRequestData(requestDTO);
+        // 验证请求数据并获取错误信息
+        Map<String, String> fieldErrors = validateRequestData(requestDTO);
 
-        // 处理上传的JSON文件
-        if (!propProofDocs.isEmpty()) {
+        // 初始化响应结果
+        Map<String, Object> responseData = new HashMap<>();
+
+        // 如果有验证错误，返回错误信息
+        if (!fieldErrors.isEmpty()) {
+            responseData.put("success", false);
+            responseData.put("fieldErrors", fieldErrors);
+            responseData.put("message", MsgCode.PARAMETER_VALIDATION_ERROR.getMessage());
+            return responseData;
+        }
+
+        // 验证通过，继续处理
+        responseData.put("success", true);
+        responseData.put("message", MsgCode.DATA_VALIDATION_PASSED.getMessage());
+
+        // 处理并提取上传的财务JSON文件数据
+        if (propProofDocs != null && !propProofDocs.isEmpty()) {
             try {
-                // 读取JSON文件内容
-                String jsonContent = new String(propProofDocs.getBytes());
-                // 解析JSON内容
-                // 保存文件到服务器目录
-                String filePath = "C:\\upload" + propProofDocs.getOriginalFilename();
-                Files.copy(propProofDocs.getInputStream(), Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                // return ResponseEntity.badRequest().body(Map.of("success", false, "message",
-                // "文件处理失败"));
+                // 提取JSON文件内容
+                Map<String, Object> financialData = extractFinancialData(propProofDocs);
+                // 将提取的财务数据添加到响应中
+                responseData.put("financialData", financialData);
+                responseData.put("message", MsgCode.FINANCIAL_FILE_PARSED_SUCCESS.getMessage());
+            } catch (Exception e) {
+                // 文件处理错误
+                responseData.put("success", false);
+                responseData.put("message", MsgCode.FILE_UPLOAD_ERROR.getMessage());
+                Map<String, String> fileErrors = new HashMap<>();
+                fileErrors.put("propProofDocs", MsgCode.FILE_UPLOAD_ERROR.getMessage());
+                responseData.put("fieldErrors", fileErrors);
             }
         }
-
-        // 创建企业贷款申请记录
-        CorporationLoan corporationLoan = new CorporationLoan();
-        corporationLoan.setUserId(userId);
-        corporationLoan.setEntName(requestDTO.getEntName());
-        corporationLoan.setUscc(requestDTO.getUscc());
-        corporationLoan.setCompanyEmail(requestDTO.getCompanyEmail());
-        corporationLoan.setCompanyAddress(requestDTO.getCompanyAddress());
-        corporationLoan.setRepayAccountBank(requestDTO.getRepayAccountBank());
-        corporationLoan.setRepayAccountNo(requestDTO.getRepayAccountNo());
-        corporationLoan.setLoanAmount(requestDTO.getLoanAmount());
-        corporationLoan.setLoanTerm(requestDTO.getLoanTerm());
-        corporationLoan.setLoanPurpose(requestDTO.getLoanPurpose());
-        corporationLoan.setPropProofType(requestDTO.getPropProofType());
-        corporationLoan.setIndustryCategory(requestDTO.getIndustryCategory());
-
-        // 保存到数据库
-        int result = corporationLoanMapper.insert(corporationLoan);
-        if (result <= 0) {
-            throw new ServiceException(ErrorCode.OPERATION_FAILED.getMessage());
-        }
-
-        // 返回结果
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("applicationId", corporationLoan.getId());
-        responseData.put("entName", requestDTO.getEntName());
-        responseData.put("uscc", requestDTO.getUscc());
-        responseData.put("companyEmail", requestDTO.getCompanyEmail());
-        responseData.put("companyAddress", requestDTO.getCompanyAddress());
-        responseData.put("repayAccountBank", requestDTO.getRepayAccountBank());
-        responseData.put("repayAccountNo", requestDTO.getRepayAccountNo());
-        responseData.put("loanAmount", requestDTO.getLoanAmount());
-        responseData.put("loanTerm", requestDTO.getLoanTerm());
-        responseData.put("loanPurpose", requestDTO.getLoanPurpose());
-        responseData.put("propProofType", requestDTO.getPropProofType());
-        responseData.put("industryCategory", requestDTO.getIndustryCategory());
 
         return responseData;
     }
@@ -99,123 +75,117 @@ public class CorporationLoanService {
     /**
      * 验证请求数据
      */
-    private void validateRequestData(CorporationLoanRequestDTO requestDTO) {
+    private Map<String, String> validateRequestData(CorporationLoanRequestDTO requestDTO) {
         Map<String, String> fieldErrors = new HashMap<>();
 
-        // 验证必填字段
-        if (requestDTO.getEntName() == null || requestDTO.getEntName().trim().isEmpty()) {
-            fieldErrors.put("entName", "企业名称不能为空");
-        }
-
-        // 验证统一社会信用代码（18位字母数字）
+        // 验证统一社会信用代码（18位英数字且不能是纯数字或纯字母）
         if (requestDTO.getUscc() == null || !Pattern.matches("^[A-Za-z0-9]{18}$", requestDTO.getUscc())) {
-            fieldErrors.put("uscc", ErrorCode.USCC_FORMAT_ERROR.getMessage());
-        }
-
-        // 验证邮箱格式
-        if (requestDTO.getCompanyEmail() == null
-                || !Pattern.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", requestDTO.getCompanyEmail())) {
-            fieldErrors.put("companyEmail", "邮箱格式不正确");
+            fieldErrors.put("uscc", MsgCode.USCC_FORMAT_ERROR.getMessage());
+        } else if (requestDTO.getUscc().matches("^\\d{18}$") || requestDTO.getUscc().matches("^[A-Za-z]{18}$")) {
+            // 不能是纯数字或纯字母
+            fieldErrors.put("uscc", MsgCode.USCC_NOT_PURE_NUMERIC_OR_ALPHA.getMessage());
         }
 
         // 验证还款账户号码（19位数字）
         if (requestDTO.getRepayAccountNo() == null || !Pattern.matches("^\\d{19}$", requestDTO.getRepayAccountNo())) {
-            fieldErrors.put("repayAccountNo", ErrorCode.REPAY_ACCOUNT_ERROR.getMessage());
+            fieldErrors.put("repayAccountNo", MsgCode.REPAY_ACCOUNT_ERROR.getMessage());
         }
 
         // 验证贷款金额（非负数）
         if (requestDTO.getLoanAmount() == null) {
-            fieldErrors.put("loanAmount", "贷款金额不能为空");
+            fieldErrors.put("loanAmount", MsgCode.LOAN_AMOUNT_EMPTY.getMessage());
         } else {
             try {
                 BigDecimal amount = requestDTO.getLoanAmount();
                 if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-                    fieldErrors.put("loanAmount", ErrorCode.LOAN_AMOUNT_ERROR.getMessage());
+                    fieldErrors.put("loanAmount", MsgCode.LOAN_AMOUNT_ERROR.getMessage());
                 }
-            } catch (NumberFormatException e) {
-                fieldErrors.put("loanAmount", "贷款金额格式不正确");
+            } catch (Exception e) {
+                fieldErrors.put("loanAmount", MsgCode.LOAN_AMOUNT_FORMAT_ERROR.getMessage());
             }
         }
 
-        // 验证贷款期限相关性
+        // 验证信用贷款期限,税贷期限相关性
         validateLoanTerm(requestDTO.getLoanPurpose(), requestDTO.getLoanTerm(), fieldErrors);
 
-        // 如果有字段错误，抛出异常
-        if (!fieldErrors.isEmpty()) {
-            throw new ServiceException(ErrorCode.PARAMETER_VALIDATION_ERROR.getMessage(),
-                    ErrorCode.PARAMETER_VALIDATION_ERROR.getCode());
-        }
+        return fieldErrors;
     }
 
     /**
      * 验证贷款期限相关性
      */
     private void validateLoanTerm(String loanPurpose, String loanTerm, Map<String, String> fieldErrors) {
-        if (loanPurpose != null && loanTerm != null) {
-            // 信用贷款期限检查
-            if (loanPurpose.contains("信用") || loanPurpose.contains("credit")) {
-                try {
-                    int termYears = Integer.parseInt(loanTerm);
+        if (loanPurpose != null && loanTerm != null && !loanTerm.trim().isEmpty()) {
+            // 移除"年"字，提取纯数字部分
+            String numericPart = loanTerm.replaceAll("[^0-9]", "");
+            if (!numericPart.isEmpty()) {
+                int termYears = Integer.parseInt(numericPart);
+
+                // 信用贷款期限检查：确保不超过5年
+                if (loanPurpose.contains("信用")) {
                     if (termYears > 5) {
-                        fieldErrors.put("loanTerm", ErrorCode.CREDIT_LOAN_TERM_ERROR.getMessage());
+                        fieldErrors.put("loanTerm", MsgCode.CREDIT_LOAN_TERM_ERROR.getMessage());
                     }
-                } catch (NumberFormatException e) {
-                    // 期限格式错误
                 }
-            }
-            // 税贷期限检查
-            if (loanPurpose.contains("税") || loanPurpose.contains("tax")) {
-                try {
-                    int termYears = Integer.parseInt(loanTerm);
+                // 税贷期限检查：确保不超过2年
+                if (loanPurpose.contains("税")) {
                     if (termYears > 2) {
-                        fieldErrors.put("loanTerm", ErrorCode.TAX_LOAN_TERM_ERROR.getMessage());
+                        fieldErrors.put("loanTerm", MsgCode.TAX_LOAN_TERM_ERROR.getMessage());
                     }
-                } catch (NumberFormatException e) {
-                    // 期限格式错误
                 }
             }
         }
     }
 
     /**
-     * 处理JSON文件
+     * 提取财务JSON文件数据
      */
-    private Map<String, String> processJsonFile(MultipartFile file) {
-        try {
-            // 验证文件类型
-            String contentType = file.getContentType();
-            if (contentType == null || !contentType.contains("json")) {
-                throw new ServiceException(ErrorCode.FILE_TYPE_ERROR.getMessage());
-            }
-
-            // 解析JSON文件进行内容校验 - 移除未使用的变量
-            // 直接保存文件，不再定义未使用的jsonNode变量
-
-            // 保存文件
-            String filePath = fileUploadUtil.saveJsonFile(file);
-
-            Map<String, String> fileInfo = new HashMap<>();
-            fileInfo.put("filePath", filePath);
-            fileInfo.put("originalFileName", file.getOriginalFilename());
-            fileInfo.put("fileType", contentType);
-
-            return fileInfo;
-        } catch (IOException e) {
-            throw new ServiceException(ErrorCode.JSON_PARSE_ERROR.getMessage());
+    private Map<String, Object> extractFinancialData(MultipartFile file) throws IOException {
+        // 验证文件类型
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.contains("json")) {
+            throw new ServiceException(MsgCode.FILE_TYPE_ERROR.getMessage());
         }
+
+        // 保存文件到指定路径
+        fileUploadUtil.saveJsonFile(file);
+
+        // 读取并解析JSON文件内容
+        JsonNode rootNode = objectMapper.readTree(file.getInputStream());
+
+        // 将JSON数据转换为Map
+        return convertJsonNodeToMap(rootNode);
     }
 
     /**
-     * 保存文件信息
+     * 将JsonNode转换为Map，便于前端处理
      */
-    private void saveFileInfo(Long applicationId, Map<String, String> fileInfo, MultipartFile file) {
-        File fileEntity = new File();
-        fileEntity.setApplicationId(applicationId);
-        fileEntity.setFileName(fileInfo.get("originalFileName"));
-        fileEntity.setFilePath(fileInfo.get("filePath"));
-        fileEntity.setFileType(fileInfo.get("fileType"));
-        fileEntity.setFileSize(file.getSize());
+    private Map<String, Object> convertJsonNodeToMap(JsonNode node) {
+        Map<String, Object> result = new HashMap<>();
 
-        fileMapper.insert(fileEntity);
+        if (node.isObject()) {
+            // properties()方法返回Set，直接使用for-each循环遍历
+            for (Map.Entry<String, JsonNode> entry : node.properties()) {
+                String key = entry.getKey();
+                JsonNode value = entry.getValue();
+
+                if (value.isObject()) {
+                    result.put(key, convertJsonNodeToMap(value));
+                } else if (value.isArray()) {
+                    // 对于数组，这里简化处理，直接转换为字符串
+                    result.put(key, value.toString());
+                } else if (value.isTextual()) {
+                    result.put(key, value.asText());
+                } else if (value.isNumber()) {
+                    result.put(key, value.numberValue());
+                } else if (value.isBoolean()) {
+                    result.put(key, value.booleanValue());
+                } else if (value.isNull()) {
+                    result.put(key, null);
+                }
+            }
+        }
+
+        return result;
     }
 }
