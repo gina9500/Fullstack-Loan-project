@@ -1,6 +1,5 @@
 package com.loanguard.backend.utils;
 
-import com.loanguard.backend.model.User;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 

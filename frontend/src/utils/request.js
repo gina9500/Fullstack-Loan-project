@@ -32,20 +32,7 @@ async function request(url, options = {}) {
     const response = await fetch(fullUrl, mergedOptions);
     
     if (!response.ok) {
-      // 尝试获取后端返回的错误详情
-      let errorDetails = '';
-      try {
-        const errorData = await response.json();
-        errorDetails = JSON.stringify(errorData);
-      } catch (jsonError) {
-        // 如果响应不是JSON格式，尝试获取文本
-        try {
-          errorDetails = await response.text();
-        } catch (textError) {
-          errorDetails = '无法获取错误详情';
-        }
-      }
-      throw new Error(`HTTP error! Status: ${response.status}. Details: ${errorDetails}`);
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
     const data = await response.json();
@@ -59,17 +46,23 @@ async function request(url, options = {}) {
 /**
  * GET请求
  * @param {string} url - 请求地址
- * @param {Object} params - 请求参数
+ * @param {Object} params - 查询参数
+ * @param {Object} options - 附加选项
  * @returns {Promise} - 返回Promise对象
  */
-export function get(url, params = {}) {
+export function get(url, params = {}, options = {}) {
+  // 构建查询字符串
   const queryString = Object.keys(params)
     .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
     .join('&');
   
+  // 添加查询参数到URL
   const fullUrl = queryString ? `${url}?${queryString}` : url;
   
-  return request(fullUrl);
+  return request(fullUrl, {
+    ...options,
+    method: 'GET'
+  });
 }
 
 /**
@@ -82,8 +75,6 @@ export function get(url, params = {}) {
 export function post(url, data = {}, options = {}) {
   // 对于FormData对象，不进行JSON序列化且不设置Content-Type
   const isFormData = data instanceof FormData;
-  
-  console.log('数据类型:', isFormData ? 'FormData' : 'JSON');
   
   // 当是FormData时，需要移除Content-Type，让浏览器自动设置
   const requestOptions = {
@@ -105,22 +96,7 @@ export function post(url, data = {}, options = {}) {
     }
   }
   
-  console.log('最终请求选项:', requestOptions);
   return request(url, requestOptions);
-}
-
-/**
- * 文件上传
- * @param {string} url - 请求地址
- * @param {FormData} formData - 表单数据
- * @returns {Promise} - 返回Promise对象
- */
-export function upload(url, formData) {
-  return request(url, {
-    method: 'POST',
-    headers: {}, // 不需要Content-Type，浏览器会自动添加
-    body: formData,
-  });
 }
 
 export default request;

@@ -1,20 +1,23 @@
 package com.loanguard.backend.service;
 
-import com.loanguard.backend.common.MsgCode;
-import com.loanguard.backend.common.ServiceException;
-import com.loanguard.backend.dto.CorporationLoanRequestDTO;
-import com.loanguard.backend.utils.FileUploadUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.loanguard.backend.common.MsgCode;
+import com.loanguard.backend.common.ServiceException;
+import com.loanguard.backend.dto.CorporationLoanRequestDTO;
+import com.loanguard.backend.utils.FileUploadUtil;
 
 /**
  * 企业贷款服务层
@@ -25,7 +28,6 @@ public class CorporationLoanService {
     @Autowired
     private FileUploadUtil fileUploadUtil;
 
-    // JSON解析器
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
@@ -55,7 +57,7 @@ public class CorporationLoanService {
         if (propProofDocs != null && !propProofDocs.isEmpty()) {
             try {
                 // 提取JSON文件内容
-                Map<String, Object> financialData = extractFinancialData(propProofDocs);
+                Object financialData = extractFinancialData(propProofDocs);
                 // 将提取的财务数据添加到响应中
                 responseData.put("financialData", financialData);
                 responseData.put("message", MsgCode.FINANCIAL_FILE_PARSED_SUCCESS.getMessage());
@@ -140,52 +142,59 @@ public class CorporationLoanService {
     /**
      * 提取财务JSON文件数据
      */
-    private Map<String, Object> extractFinancialData(MultipartFile file) throws IOException {
+    private Object extractFinancialData(MultipartFile file) throws IOException {
         // 验证文件类型
         String contentType = file.getContentType();
         if (contentType == null || !contentType.contains("json")) {
             throw new ServiceException(MsgCode.FILE_TYPE_ERROR.getMessage());
         }
 
+        // 先读取文件内容到字节数组
+        byte[] fileBytes = file.getBytes();
+
         // 保存文件到指定路径
         fileUploadUtil.saveJsonFile(file);
 
-        // 读取并解析JSON文件内容
-        JsonNode rootNode = objectMapper.readTree(file.getInputStream());
+        // 使用字节数组创建新的输入流进行解析
+        JsonNode rootNode = objectMapper.readTree(fileBytes);
 
         // 将JSON数据转换为Map
         return convertJsonNodeToMap(rootNode);
     }
 
     /**
-     * 将JsonNode转换为Map，便于前端处理
+     * 将JsonNode转换为Map或List，便于前端处理
      */
-    private Map<String, Object> convertJsonNodeToMap(JsonNode node) {
-        Map<String, Object> result = new HashMap<>();
-
-        if (node.isObject()) {
-            // properties()方法返回Set，直接使用for-each循环遍历
+    private Object convertJsonNodeToMap(JsonNode node) {
+        // 如果是数组，返回List
+        if (node.isArray()) {
+            List<Object> arrayList = new ArrayList<>();
+            for (JsonNode element : node) {
+                arrayList.add(convertJsonNodeToMap(element));
+            }
+            return arrayList;
+        }
+        // 如果是对象，返回Map
+        else if (node.isObject()) {
+            Map<String, Object> result = new HashMap<>();
             for (Map.Entry<String, JsonNode> entry : node.properties()) {
                 String key = entry.getKey();
                 JsonNode value = entry.getValue();
-
-                if (value.isObject()) {
-                    result.put(key, convertJsonNodeToMap(value));
-                } else if (value.isArray()) {
-                    // 对于数组，这里简化处理，直接转换为字符串
-                    result.put(key, value.toString());
-                } else if (value.isTextual()) {
-                    result.put(key, value.asText());
-                } else if (value.isNumber()) {
-                    result.put(key, value.numberValue());
-                } else if (value.isBoolean()) {
-                    result.put(key, value.booleanValue());
-                } else if (value.isNull()) {
-                    result.put(key, null);
-                }
+                result.put(key, convertJsonNodeToMap(value));
             }
+            return result;
         }
-
-        return result;
+        // 基本类型直接返回
+        else if (node.isTextual()) {
+            return node.asText();
+        } else if (node.isNumber()) {
+            return node.numberValue();
+        } else if (node.isBoolean()) {
+            return node.booleanValue();
+        } else if (node.isNull()) {
+            return null;
+        }
+        // 默认返回字符串表示
+        return node.toString();
     }
 }
