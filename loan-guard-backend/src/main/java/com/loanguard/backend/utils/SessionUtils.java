@@ -11,17 +11,6 @@ import org.springframework.stereotype.Component;
 public class SessionUtils {
 
     /**
-     * 获取当前登录用户
-     */
-    public User getCurrentUser() {
-        HttpSession session = getSession();
-        if (session != null) {
-            return (User) session.getAttribute("currentUser");
-        }
-        return null;
-    }
-
-    /**
      * 获取当前登录用户ID
      */
     public String getCurrentUserId() {

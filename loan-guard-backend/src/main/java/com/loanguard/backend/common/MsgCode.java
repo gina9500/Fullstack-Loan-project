@@ -26,7 +26,7 @@ public enum MsgCode {
     LOAN_AMOUNT_FORMAT_ERROR("6003-2", "贷款金额格式不正确"),
     CREDIT_LOAN_TERM_ERROR("6004", "信用贷款期限不能超过5年"),
     TAX_LOAN_TERM_ERROR("6005", "税贷期限不能超过2年"),
-    FILE_UPLOAD_ERROR("6006", "文件报错失败"),
+    FILE_UPLOAD_ERROR("6006", "文件上传到后端失败"),
     FILE_TYPE_ERROR("6007", "不支持的文件类型"),
     JSON_PARSE_ERROR("6008", "JSON文件解析失败"),
     MISSING_REQUIRED_FIELD("6009", "缺少必填字段"),

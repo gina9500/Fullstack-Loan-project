@@ -169,7 +169,7 @@ const handleSubmit = async (e) => {
   setIsSubmitting(true);
 
   try {
-    // 准备要发送的数据（排除文件）
+    // 要发送的数据（排除文件）
     const dataToSend = {
       entName: formData.entName,
       uscc: formData.uscc,
@@ -188,7 +188,7 @@ const handleSubmit = async (e) => {
     const response = await checkCorporationLoan(dataToSend, formData.propProofDocs);
     
     console.log('后端返回响应:', response);
-    // 处理响应...
+
     if (response.success) {
       // 保存验证通过后的数据到localStorage用于确认页面显示
       const savedData = {
@@ -206,27 +206,22 @@ const handleSubmit = async (e) => {
       // 处理后端返回的错误信息
       const newErrors = {};
       
-      // 添加全局错误信息
+      // 添加（参数校验失败）错误信息
       if (response.message) {
         newErrors.check = response.message;
       }
       
-      // 添加字段特定的错误信息
-      if (response.data && response.data.fieldErrors) {
-        // 合并字段错误到newErrors对象
+      // 添加各字段的错误信息
+      if (response.data.fieldErrors) {
         Object.assign(newErrors, response.data.fieldErrors);
-      } else if (response.fieldErrors) {
-        // 兼容可能的不同响应结构
-        Object.assign(newErrors, response.fieldErrors);
-      }
+      } 
       
       // 更新错误状态
       setErrors(newErrors);
     }
     
   } catch (error) {
-    console.error('提交过程中发生错误:', error);
-    setErrors({ submit: '提交失败，请稍后重试' });
+    setErrors({ check: '检查失败' });
   } finally {
     setIsSubmitting(false);
   }
@@ -448,6 +443,7 @@ const handleSubmit = async (e) => {
             </div>
           </div>
 
+          {/* 后端检查结果错误信息显示 */}
           {errors.check && (
             <div className="error-message-check">{errors.check}</div>
           )}
