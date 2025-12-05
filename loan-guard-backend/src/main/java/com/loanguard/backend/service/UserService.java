@@ -4,6 +4,9 @@ import com.loanguard.backend.common.MsgCode;
 import com.loanguard.backend.common.ServiceException;
 import com.loanguard.backend.model.User;
 import com.loanguard.backend.mapper.UserMapper;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +15,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     @Autowired
     private UserMapper userMapper;
 
@@ -24,6 +30,8 @@ public class UserService {
      * @throws ServiceException 当验证失败时抛出异常
      */
     public User auth(String userId, String password) {
+
+        logger.error("用户登录auth", userId, password);
         // 根据用户名查找用户
         User user = userMapper.findByUserId(userId);
 

@@ -4,6 +4,7 @@ import BaseLayout from '../components/layout/BaseLayout';
 import './loan-information-confirmation.css';
 // 导入FinancialChart组件
 import FinancialChart from './FinancialChart';
+import { submitLoanConfirmation } from '../api/loan';
 
 const LoanInformationConfirmation = () => {
   const [applicationData, setApplicationData] = useState(null);
@@ -106,21 +107,30 @@ const LoanInformationConfirmation = () => {
 
 /**
  * 处理确认提交
- * 模拟API调用后跳转到结果页面
+ * 将表单数据提交到后端进行DB存储
  */
 const handleConfirm = async () => {
   setIsSubmitting(true);
+  setError(null);
   
   try {
     // 保存包含文件名的完整数据到localStorage，确保从结果页面返回时能恢复
     localStorage.setItem('loanApplication', JSON.stringify(applicationData));
-    // 由于没有后端API，直接跳转到结果页面
-    setTimeout(() => {
+    
+    // 调用后端API提交确认的贷款申请数据
+    const response = await submitLoanConfirmation(applicationData);
+    console.log('提交确认结果:', response);
+    
+    // 处理API响应
+    if (response.success) {
+      // 如果成功，跳转到结果页面
       window.location.href = '/loan-result';
-    }, 1000);
+    } else {
+      // 如果失败，显示错误信息
+      throw new Error(response.message || '提交失败，请稍后重试');
+    }
   } catch (err) {
-    console.error('确认申请出错:', err);
-    alert('网络错误，请稍后重试');
+    setError(err.message || '网络错误，请稍后重试');
   } finally {
     setIsSubmitting(false);
   }

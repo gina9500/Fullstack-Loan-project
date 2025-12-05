@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loanguard.backend.common.MsgCode;
 import com.loanguard.backend.common.ServiceException;
 import com.loanguard.backend.dto.CorporationLoanRequestDTO;
+import com.loanguard.backend.mapper.CorporationLoanMapper;
+import com.loanguard.backend.model.CorporationLoan;
 import com.loanguard.backend.utils.FileUploadUtil;
 
 /**
@@ -25,16 +29,24 @@ import com.loanguard.backend.utils.FileUploadUtil;
 @Service
 public class CorporationLoanService {
 
+    private static final Logger logger = LoggerFactory.getLogger(CorporationLoanService.class);
+
     @Autowired
     private FileUploadUtil fileUploadUtil;
+
+    @Autowired
+    private CorporationLoanMapper corporationLoanMapper;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 提交企业贷款申请
      */
-    public Map<String, Object> submitLoanApplication(String userId, CorporationLoanRequestDTO requestDTO,
+    public Map<String, Object> checkLoanApplication(String userId, CorporationLoanRequestDTO requestDTO,
             MultipartFile propProofDocs) {
+
+        logger.error("企业贷款表单数据检查checkLoanApplication", userId, requestDTO);
+
         // 验证请求数据并获取错误信息
         Map<String, String> fieldErrors = validateRequestData(requestDTO);
 
@@ -213,5 +225,52 @@ public class CorporationLoanService {
         }
         // 默认返回字符串表示
         return node.toString();
+    }
+
+    /**
+     * 保存贷款申请到数据库
+     */
+    public boolean saveLoanApplication(String userId, CorporationLoanRequestDTO requestDTO) {
+        try {
+            // 创建贷款申请实体
+            CorporationLoan loanApplication = new CorporationLoan();
+
+            // 企业用户ID
+            loanApplication.setUserId(userId);
+            // 企业名称
+            loanApplication.setEntName(requestDTO.getEntName());
+            // 统一社会信用代码
+            loanApplication.setUscc(requestDTO.getUscc());
+            // 企业邮箱
+            loanApplication.setCompanyEmail(requestDTO.getCompanyEmail());
+            // 企业地址
+            loanApplication.setCompanyAddress(requestDTO.getCompanyAddress());
+            // 还款账户银行
+            loanApplication.setRepayAccountBank(requestDTO.getRepayAccountBank());
+            // 还款账户号码
+            loanApplication.setRepayAccountNo(requestDTO.getRepayAccountNo());
+            // 贷款金额
+            BigDecimal amount = requestDTO.getLoanAmount();
+            loanApplication.setLoanAmount(amount);
+            // 贷款期限
+            loanApplication.setLoanTerm(requestDTO.getLoanTerm());
+            // 贷款目的
+            loanApplication.setLoanPurpose(requestDTO.getLoanPurpose());
+            // 财产证明类型
+            loanApplication.setPropProofType(requestDTO.getPropProofType());
+            // 行业类别
+            loanApplication.setIndustryCategory(requestDTO.getIndustryCategory());
+            // 设置申请状态为待处理
+            loanApplication.setStatus("PENDING");
+
+            // 保存到数据库
+            int result = corporationLoanMapper.insert(loanApplication);
+
+            // 返回保存是否成功
+            return result > 0;
+        } catch (Exception e) {
+            logger.error("保存贷款申请失败", e);
+            return false;
+        }
     }
 }

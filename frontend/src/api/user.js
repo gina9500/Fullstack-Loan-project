@@ -9,11 +9,3 @@ import { post } from '../utils/request';
 export async function login(credentials) {
   return post('/user/login', credentials);
 }
-
-/**
- * 获取用户信息
- * @returns {Promise} - 返回Promise对象
- */
-export async function getUserInfo() {
-  return post('/user/info');
-}

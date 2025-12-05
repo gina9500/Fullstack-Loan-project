@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,7 +55,7 @@ public class CorporationLoanController {
             }
 
             // 调用服务层处理
-            Map<String, Object> result = corporationLoanService.submitLoanApplication(userId, requestDTO,
+            Map<String, Object> result = corporationLoanService.checkLoanApplication(userId, requestDTO,
                     propProofDocs);
 
             // 根据服务返回的success字段判断是否成功
@@ -78,6 +79,35 @@ public class CorporationLoanController {
         } catch (Exception e) {
             // 其他异常
             e.printStackTrace();
+            return ResponseResult.fail(MsgCode.SYSTEM_ERROR.getMessage());
+        }
+    }
+
+    /**
+     * 保存企业贷款申请到数据库
+     */
+    @PostMapping("/corporation/confirm")
+    public ResponseResult<Map<String, Object>> saveLoanApplication(@RequestBody CorporationLoanRequestDTO requestDTO) {
+        logger.info("接收到保存贷款申请的请求");
+        try {
+            // 获取当前登录用户ID
+            String userId = sessionUtils.getCurrentUserId();
+            if (userId == null) {
+                logger.error("用户未登录，无法保存贷款申请");
+                return ResponseResult.fail(MsgCode.USER_NOT_LOGGED_IN.getMessage());
+            }
+
+            // 调用服务层保存申请数据
+            boolean saved = corporationLoanService.saveLoanApplication(userId, requestDTO);
+
+            // 返回保存结果
+            if (saved) {
+                return ResponseResult.success(MsgCode.SUCCESS.getMessage(), Map.of("saved", true));
+            } else {
+                return ResponseResult.fail("保存贷款申请失败", Map.of("saved", false));
+            }
+        } catch (Exception e) {
+            logger.error("保存贷款申请异常", e);
             return ResponseResult.fail(MsgCode.SYSTEM_ERROR.getMessage());
         }
     }

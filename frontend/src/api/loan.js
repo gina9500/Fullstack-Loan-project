@@ -1,8 +1,8 @@
 // 贷款申请相关API
-import { get } from '../utils/request';
+import { get, post } from '../utils/request';
 
 /**
- * 提交企业贷款信息
+ * 检查提交企业贷款信息
  * @param {Object} data - 贷款申请数据
  * @param {File} file - 财产证明文件
  * @returns {Promise} - 返回Promise对象
@@ -70,10 +70,11 @@ export async function checkCorporationLoan(data, file) {
 }
 
 /**
- * 确认贷款申请
- * @param {string} applicationId - 申请ID
+ * 提交贷款申请确认
+ * @param {Object} applicationData - 完整的贷款申请数据
  * @returns {Promise} - 返回Promise对象
  */
-export async function confirmLoanApplication(applicationId) {
-  return get('/loan/application/confirm', { applicationId });
+export async function submitLoanConfirmation(applicationData) {
+  const url = '/loan/corporation/confirm';
+  return post(url, applicationData);
 }
