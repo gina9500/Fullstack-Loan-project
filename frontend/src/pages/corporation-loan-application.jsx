@@ -28,6 +28,7 @@ const CorporationLoanApplication = () => {
     propProofType: '',      // 财产证明类型
     industryCategory: '',   // 行业类别
     propProofDocs: null,    // 财产证明文件（JSON文件）
+    propProofDocsName: '',  // 财产证明文件名
   });
 
   // 从localStorage恢复数据
@@ -79,10 +80,16 @@ const CorporationLoanApplication = () => {
         
         console.log('过滤后的有效数据:', validFormData);
         
+        // 恢复文件名（如果存在）
+        const restoredFileName = formDataToRestore.propProofDocsName || '';
+
         setFormData(prev => ({
           ...prev,
-          ...validFormData
+          ...validFormData,
+          propProofDocsName: restoredFileName
         }));
+        
+        console.log('数据恢复完成，文件名:', restoredFileName);
         
         // 清除retainData标记，因为数据已经恢复
         localStorage.removeItem('retainData');
@@ -138,13 +145,15 @@ const handleFileChange = async (name, event) => {
     // 直接保存文件，不进行前端解析
     setFormData(prev => ({
       ...prev,
-      [name]: file
+      [name]: file,
+      propProofDocsName: file.name
     }));
   } else {
     // 其他文件类型的处理
     setFormData(prev => ({
       ...prev,
-      [name]: file
+      [name]: file,
+      propProofDocsName: file ? file.name : ''
     }));
   }
   
@@ -236,20 +245,21 @@ const handleSubmit = async (e) => {
     
     console.log('后端返回响应:', response);
 
-    if (response.success) {
-      // 保存验证通过后的数据到localStorage用于确认页面显示
-      const savedData = {
-        ...formData,
-        propProofDocsName: formData.propProofDocs?.name || null
-      };
-      localStorage.setItem('loanApplication', JSON.stringify(response.data || savedData));
-      
-      // 设置retainData标记，用于指示需要保留数据
-      localStorage.setItem('retainData', 'true');
-      
-      // 跳转到确认页面
-      window.location.href = '/loan-information-confirmation';
-    } else {
+if (response.success) {
+  // 保存验证通过后的数据到localStorage用于确认页面显示
+  const baseData = response.data || formData;
+  const savedData = {
+    ...baseData,
+    propProofDocsName: formData.propProofDocs?.name || baseData.propProofDocsName || null
+  };
+  localStorage.setItem('loanApplication', JSON.stringify(savedData));
+  
+  // 设置retainData标记，用于指示需要保留数据
+  localStorage.setItem('retainData', 'true');
+  
+  // 跳转到确认页面
+  window.location.href = '/loan-information-confirmation';
+} else {
       // 处理后端返回的错误信息
       const newErrors = {};
       
@@ -474,8 +484,8 @@ const handleSubmit = async (e) => {
               onChange={(e) => handleFileChange('propProofDocs', e)}
               error={errors.propProofDocs}
               required
-              placeholder="Please upload your property proof document (JSON format)!"
-/>
+              initialFileName={formData.propProofDocsName}
+            />
             </div>
             <div className="form-row">
               <SelectField

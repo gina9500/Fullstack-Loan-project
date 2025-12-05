@@ -8,9 +8,10 @@ const FileUploadField = ({
   name, 
   onChange, 
   error, 
-  required = false 
+  required = false,
+  initialFileName = ''
 }) => {
-  const [fileName, setFileName] = useState('');
+  const [fileName, setFileName] = useState(initialFileName);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -62,7 +63,8 @@ FileUploadField.propTypes = {
   name: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   error: PropTypes.string,
-  required: PropTypes.bool
+  required: PropTypes.bool,
+  initialFileName: PropTypes.string
 };
 
 export default FileUploadField;

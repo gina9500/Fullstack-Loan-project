@@ -51,6 +51,23 @@ const LoanInformationConfirmation = () => {
           }
         }
         
+        // 确保文件名被正确提取（检查多个可能的位置）
+        let propProofDocsName = applicationDataToSet.propProofDocsName;
+        if (!propProofDocsName) {
+          // 检查原始数据中是否有文件名
+          propProofDocsName = parsedData.propProofDocsName;
+        }
+        if (!propProofDocsName && parsedData.data) {
+          // 检查data对象中是否有文件名
+          propProofDocsName = parsedData.data.propProofDocsName;
+        }
+        
+        // 更新applicationDataToSet，确保包含文件名
+        applicationDataToSet = {
+          ...applicationDataToSet,
+          propProofDocsName: propProofDocsName || ''
+        };
+        
         console.log('最终使用的申请数据:', applicationDataToSet);
         console.log('最终使用的财务数据:', financialDataToSet);
         
