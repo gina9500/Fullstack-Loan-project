@@ -60,7 +60,6 @@ public class CorporationLoanService {
             Map<String, Object> formData = objectMapper.convertValue(requestDTO, Map.class);
             responseData.put("formData", formData);
         } catch (Exception e) {
-            // 转换错误时记录日志
             e.printStackTrace();
         }
 

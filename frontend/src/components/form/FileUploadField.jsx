@@ -1,5 +1,5 @@
 // 文件上传组件
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './file-upload-field.css';
 
@@ -12,6 +12,13 @@ const FileUploadField = ({
   initialFileName = ''
 }) => {
   const [fileName, setFileName] = useState(initialFileName);
+  
+  // 当initialFileName变化时更新内部fileName状态
+  useEffect(() => {
+    if (initialFileName) {
+      setFileName(initialFileName);
+    }
+  }, [initialFileName]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

@@ -104,25 +104,27 @@ const LoanInformationConfirmation = () => {
     setApplicationData(defaultData);
   };
 
-   /**
-   * 处理确认提交
-   * 模拟API调用后跳转到结果页面
-   */
-  const handleConfirm = async () => {
-    setIsSubmitting(true);
-    
-    try {
-      // 由于没有后端API，直接跳转到结果页面
-      setTimeout(() => {
-        window.location.href = '/loan-result';
-      }, 1000);
-    } catch (err) {
-      console.error('确认申请出错:', err);
-      alert('网络错误，请稍后重试');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+/**
+ * 处理确认提交
+ * 模拟API调用后跳转到结果页面
+ */
+const handleConfirm = async () => {
+  setIsSubmitting(true);
+  
+  try {
+    // 保存包含文件名的完整数据到localStorage，确保从结果页面返回时能恢复
+    localStorage.setItem('loanApplication', JSON.stringify(applicationData));
+    // 由于没有后端API，直接跳转到结果页面
+    setTimeout(() => {
+      window.location.href = '/loan-result';
+    }, 1000);
+  } catch (err) {
+    console.error('确认申请出错:', err);
+    alert('网络错误，请稍后重试');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
 const handleBack = () => {
   // 设置retainData标记，指示需要保留表单数据

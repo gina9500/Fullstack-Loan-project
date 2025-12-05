@@ -31,76 +31,93 @@ const CorporationLoanApplication = () => {
     propProofDocsName: '',  // 财产证明文件名
   });
 
-  // 从localStorage恢复数据
-  useEffect(() => {
-    console.log('开始恢复localStorage数据');
-    // 打印当前localStorage状态
-    console.log('localStorage中所有数据:', localStorage);
-    
-    const savedData = localStorage.getItem('loanApplication');
-    const retainDataFlag = localStorage.getItem('retainData');
-    
-    console.log('savedData:', savedData);
-    console.log('retainDataFlag:', retainDataFlag);
-    
-    if (savedData && retainDataFlag === 'true') {
-      try {
-        const parsedData = JSON.parse(savedData);
-        console.log('解析后的数据:', parsedData);
-        
-        // 尝试多种数据结构提取表单数据
-        let formDataToRestore = {};
-        
-        // 情况1: 数据直接在顶层（早期版本）
-        if (parsedData.entName || parsedData.uscc) {
-          formDataToRestore = parsedData;
-        }
-        // 情况2: 数据在formData字段中（当前版本）
-        else if (parsedData.formData) {
-          formDataToRestore = parsedData.formData;
-        }
-        // 情况3: 数据在data字段中
-        else if (parsedData.data) {
-          formDataToRestore = parsedData.data;
-        }
-        // 情况4: 数据在data.formData字段中
-        else if (parsedData.data && parsedData.data.formData) {
-          formDataToRestore = parsedData.data.formData;
-        }
-        
-        console.log('最终要恢复的数据:', formDataToRestore);
-        
-        // 只恢复表单中定义的字段
-        const validFormData = Object.keys(formData).reduce((acc, key) => {
-          if (formDataToRestore[key] !== undefined) {
-            acc[key] = formDataToRestore[key];
-          }
-          return acc;
-        }, {});
-        
-        console.log('过滤后的有效数据:', validFormData);
-        
-        // 恢复文件名（如果存在）
-        const restoredFileName = formDataToRestore.propProofDocsName || '';
+// 从localStorage恢复数据的useEffect
+useEffect(() => {
+  // 尝试从localStorage恢复数据，如果存在retainData标记
+  const savedData = localStorage.getItem('loanApplication');
+  const retainDataFlag = localStorage.getItem('retainData');
 
-        setFormData(prev => ({
-          ...prev,
-          ...validFormData,
-          propProofDocsName: restoredFileName
-        }));
-        
-        console.log('数据恢复完成，文件名:', restoredFileName);
-        
-        // 清除retainData标记，因为数据已经恢复
-        localStorage.removeItem('retainData');
-        console.log('数据恢复完成');
-      } catch (err) {
-        console.error('解析保存的数据失败:', err);
+  console.log('savedData:', savedData);
+  console.log('retainDataFlag:', retainDataFlag);
+
+  if (savedData && retainDataFlag === 'true') {
+    try {
+      const parsedData = JSON.parse(savedData);
+      console.log('解析后的数据:', parsedData);
+      
+      // 尝试多种数据结构提取表单数据
+      let formDataToRestore = {};
+      let restoredFileName = '';
+      
+      // 首先专门提取文件名，检查所有可能的位置
+      // 检查顶层
+      if (parsedData.propProofDocsName) {
+        restoredFileName = parsedData.propProofDocsName;
       }
-    } else {
-      console.log('没有找到需要恢复的数据');
+      // 检查formData中
+      else if (parsedData.formData && parsedData.formData.propProofDocsName) {
+        restoredFileName = parsedData.formData.propProofDocsName;
+      }
+      // 检查data中
+      else if (parsedData.data && parsedData.data.propProofDocsName) {
+        restoredFileName = parsedData.data.propProofDocsName;
+      }
+      // 检查data.formData中
+      else if (parsedData.data && parsedData.data.formData && parsedData.data.formData.propProofDocsName) {
+        restoredFileName = parsedData.data.formData.propProofDocsName;
+      }
+      
+      console.log('专门提取的文件名:', restoredFileName);
+      
+      // 然后提取表单数据
+      // 情况1: 数据直接在顶层（从确认页面返回时的情况）
+      if (parsedData.entName || parsedData.uscc) {
+        formDataToRestore = parsedData;
+      }
+      // 情况2: 数据在formData字段中（当前版本正常提交情况）
+      else if (parsedData.formData) {
+        formDataToRestore = parsedData.formData;
+      }
+      // 情况3: 数据在data字段中
+      else if (parsedData.data) {
+        formDataToRestore = parsedData.data;
+      }
+      // 情况4: 数据在data.formData字段中
+      else if (parsedData.data && parsedData.data.formData) {
+        formDataToRestore = parsedData.data.formData;
+      }
+      
+      console.log('最终要恢复的数据:', formDataToRestore);
+      
+      // 只恢复表单中定义的字段
+      const validFormData = Object.keys(formData).reduce((acc, key) => {
+        if (formDataToRestore[key] !== undefined) {
+          acc[key] = formDataToRestore[key];
+        }
+        return acc;
+      }, {});
+      
+      console.log('过滤后的有效数据:', validFormData);
+      
+      // 恢复表单数据，确保文件名被正确设置
+      setFormData(prev => ({
+        ...prev,
+        ...validFormData,
+        propProofDocsName: restoredFileName
+      }));
+      
+      console.log('数据恢复完成，文件名:', restoredFileName);
+      
+      // 清除retainData标记，因为数据已经恢复
+      localStorage.removeItem('retainData');
+      console.log('数据恢复完成');
+    } catch (err) {
+      console.error('解析保存的数据失败:', err);
     }
-  }, []);
+  }  else {
+    console.log('没有找到需要恢复的数据');
+  }
+}, []);
 
   // 表单验证错误信息状态管理
   const [errors, setErrors] = useState({});
@@ -204,8 +221,16 @@ const handleFileChange = async (name, event) => {
     if (!formData.loanTerm) newErrors.loanTerm = 'Loan term is required';
     if (!formData.loanPurpose) newErrors.loanPurpose = 'Loan purpose is required';
     if (!formData.propProofType) newErrors.propProofType = 'Property proof type is required';
-    if (!formData.propProofDocs) newErrors.propProofDocs = 'Property proof document is required';
-
+    // 文件验证逻辑：必须有实际文件对象才能提交
+    // 当用户返回页面时，文件名会显示但文件对象已丢失，需要重新上传
+    if (!formData.propProofDocs) {
+      // 如果有文件名显示但没有文件对象，提示用户重新上传
+      if (formData.propProofDocsName) {
+        newErrors.propProofDocs = `请重新上传财务数据文件: ${formData.propProofDocsName}`;
+      } else {
+        newErrors.propProofDocs = 'Property proof document is required';
+      }
+    }
     // 如果没有错误，返回true表示验证通过
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
