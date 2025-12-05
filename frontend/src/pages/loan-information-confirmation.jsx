@@ -20,18 +20,42 @@ const LoanInformationConfirmation = () => {
       try {
         const parsedData = JSON.parse(savedData);
         console.log('解析后的数据:', parsedData);
-        console.log('文件名:', parsedData.propProofDocsName);
-        setApplicationData(parsedData);
         
-        // 检查是否有财务数据
-        if (parsedData.financialData && Array.isArray(parsedData.financialData)) {
-          console.log('找到财务数据:', parsedData.financialData);
-          setFinancialData(parsedData.financialData);
-        } else if (parsedData.data && parsedData.data.financialData && Array.isArray(parsedData.data.financialData)) {
-          // 检查嵌套在data对象中的财务数据
-          console.log('找到嵌套的财务数据:', parsedData.data.financialData);
-          setFinancialData(parsedData.data.financialData);
+        // 处理不同的数据结构情况
+        let applicationDataToSet;
+        let financialDataToSet = [];
+        
+        // 情况1: 直接包含formData和financialData（如截图所示）
+        if (parsedData.formData) {
+          applicationDataToSet = parsedData.formData;
+          if (parsedData.financialData && Array.isArray(parsedData.financialData)) {
+            financialDataToSet = parsedData.financialData;
+          }
         }
+        // 情况2: 嵌套在data对象中
+        else if (parsedData.data) {
+          if (parsedData.data.formData) {
+            applicationDataToSet = parsedData.data.formData;
+          } else {
+            applicationDataToSet = parsedData.data;
+          }
+          if (parsedData.data.financialData && Array.isArray(parsedData.data.financialData)) {
+            financialDataToSet = parsedData.data.financialData;
+          }
+        }
+        // 情况3: 直接包含所有字段
+        else {
+          applicationDataToSet = parsedData;
+          if (parsedData.financialData && Array.isArray(parsedData.financialData)) {
+            financialDataToSet = parsedData.financialData;
+          }
+        }
+        
+        console.log('最终使用的申请数据:', applicationDataToSet);
+        console.log('最终使用的财务数据:', financialDataToSet);
+        
+        setApplicationData(applicationDataToSet);
+        setFinancialData(financialDataToSet);
       } catch (err) {
         console.error('解析申请数据失败:', err);
         // 如果解析失败，使用默认数据

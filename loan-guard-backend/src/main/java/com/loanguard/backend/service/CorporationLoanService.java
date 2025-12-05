@@ -53,6 +53,17 @@ public class CorporationLoanService {
         responseData.put("success", true);
         responseData.put("message", MsgCode.DATA_VALIDATION_PASSED.getMessage());
 
+        // 将表单数据转换为Map并添加到响应中
+        try {
+            // 使用@SuppressWarnings抑制未检查转换警告
+            @SuppressWarnings("unchecked")
+            Map<String, Object> formData = objectMapper.convertValue(requestDTO, Map.class);
+            responseData.put("formData", formData);
+        } catch (Exception e) {
+            // 转换错误时记录日志
+            e.printStackTrace();
+        }
+
         // 处理并提取上传的财务JSON文件数据
         if (propProofDocs != null && !propProofDocs.isEmpty()) {
             try {
@@ -121,7 +132,14 @@ public class CorporationLoanService {
             // 移除"年"字，提取纯数字部分
             String numericPart = loanTerm.replaceAll("[^0-9]", "");
             if (!numericPart.isEmpty()) {
-                int termYears = Integer.parseInt(numericPart);
+                int termValue = Integer.parseInt(numericPart);
+                double termYears = termValue;
+
+                // 根据单位转换为年数
+                if (loanTerm.contains("月")) {
+                    // 月转换为年，保留两位小数
+                    termYears = termValue / 12.0;
+                }
 
                 // 信用贷款期限检查：确保不超过5年
                 if (loanPurpose.contains("信用")) {

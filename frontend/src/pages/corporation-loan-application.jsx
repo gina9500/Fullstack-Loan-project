@@ -32,19 +32,66 @@ const CorporationLoanApplication = () => {
 
   // 从localStorage恢复数据
   useEffect(() => {
+    console.log('开始恢复localStorage数据');
+    // 打印当前localStorage状态
+    console.log('localStorage中所有数据:', localStorage);
+    
     const savedData = localStorage.getItem('loanApplication');
-    if (savedData && localStorage.getItem('retainData') === 'true') {
+    const retainDataFlag = localStorage.getItem('retainData');
+    
+    console.log('savedData:', savedData);
+    console.log('retainDataFlag:', retainDataFlag);
+    
+    if (savedData && retainDataFlag === 'true') {
       try {
         const parsedData = JSON.parse(savedData);
+        console.log('解析后的数据:', parsedData);
+        
+        // 尝试多种数据结构提取表单数据
+        let formDataToRestore = {};
+        
+        // 情况1: 数据直接在顶层（早期版本）
+        if (parsedData.entName || parsedData.uscc) {
+          formDataToRestore = parsedData;
+        }
+        // 情况2: 数据在formData字段中（当前版本）
+        else if (parsedData.formData) {
+          formDataToRestore = parsedData.formData;
+        }
+        // 情况3: 数据在data字段中
+        else if (parsedData.data) {
+          formDataToRestore = parsedData.data;
+        }
+        // 情况4: 数据在data.formData字段中
+        else if (parsedData.data && parsedData.data.formData) {
+          formDataToRestore = parsedData.data.formData;
+        }
+        
+        console.log('最终要恢复的数据:', formDataToRestore);
+        
+        // 只恢复表单中定义的字段
+        const validFormData = Object.keys(formData).reduce((acc, key) => {
+          if (formDataToRestore[key] !== undefined) {
+            acc[key] = formDataToRestore[key];
+          }
+          return acc;
+        }, {});
+        
+        console.log('过滤后的有效数据:', validFormData);
+        
         setFormData(prev => ({
           ...prev,
-          ...parsedData
+          ...validFormData
         }));
+        
         // 清除retainData标记，因为数据已经恢复
         localStorage.removeItem('retainData');
+        console.log('数据恢复完成');
       } catch (err) {
         console.error('解析保存的数据失败:', err);
       }
+    } else {
+      console.log('没有找到需要恢复的数据');
     }
   }, []);
 
@@ -140,7 +187,7 @@ const handleFileChange = async (name, event) => {
       newErrors.companyEmail = 'Please enter a valid email address';
     }
     // 验证贷款申请金额
-    if (!formData.loanAmount.trim()) newErrors.loanAmount = 'Loan amount is required';
+    if (!formData.loanAmount) newErrors.loanAmount = 'Loan amount is required';
     if (formData.loanAmount && (!/^(?:0\.\d{1,2}|[1-9]\d*(?:\.\d{1,2})?)$/.test(formData.loanAmount) || parseFloat(formData.loanAmount) <= 0)) {
       newErrors.loanAmount = 'Please enter a valid positive number';
     }
