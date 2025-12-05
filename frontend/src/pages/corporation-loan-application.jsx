@@ -203,7 +203,7 @@ const handleFileChange = async (name, event) => {
     }
     if (!formData.companyEmail.trim()) newErrors.companyEmail = 'Company email is required';
     if (!formData.repayAccountBank) newErrors.repayAccountBank = 'Please select your repay account bank';
-    if (!formData.repayAccountNo.trim()) newErrors.repayAccountNo = 'Account number is required';
+    if (!formData.repayAccountNo) newErrors.repayAccountNo = 'Account number is required';
     // 验证还款账户号码为19位数字
     if (formData.repayAccountNo && !/^\d{19}$/.test(formData.repayAccountNo)) {
       newErrors.repayAccountNo = 'Account number must be 19 digits';
@@ -212,7 +212,7 @@ const handleFileChange = async (name, event) => {
     if (formData.companyEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.companyEmail)) {
       newErrors.companyEmail = 'Please enter a valid email address';
     }
-    // 验证贷款申请金额
+    // 验证贷款申请金额(非负数)
     if (!formData.loanAmount) newErrors.loanAmount = 'Loan amount is required';
     if (formData.loanAmount && (!/^(?:0\.\d{1,2}|[1-9]\d*(?:\.\d{1,2})?)$/.test(formData.loanAmount) || parseFloat(formData.loanAmount) <= 0)) {
       newErrors.loanAmount = 'Please enter a valid positive number';
@@ -221,7 +221,7 @@ const handleFileChange = async (name, event) => {
     if (!formData.loanTerm) newErrors.loanTerm = 'Loan term is required';
     if (!formData.loanPurpose) newErrors.loanPurpose = 'Loan purpose is required';
     if (!formData.propProofType) newErrors.propProofType = 'Property proof type is required';
-    // 文件验证逻辑：必须有实际文件对象才能提交
+    // 文件验证：必须上传实际文件对象才能提交
     // 当用户返回页面时，文件名会显示但文件对象已丢失，需要重新上传
     if (!formData.propProofDocs) {
       // 如果有文件名显示但没有文件对象，提示用户重新上传
