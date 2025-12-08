@@ -78,3 +78,7 @@ loan-guard-backend/
 # 编译项目
 
 mvn clean install
+
+# Swagger 接口文档
+
+http://localhost:8080/swagger-ui/index.html
