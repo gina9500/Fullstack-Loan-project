@@ -36,7 +36,7 @@ VALUES ('user1', 'user1234', 'corporation'),
     ('user2', 'user1234', 'personal');
 -- 查询用户表
 select *
-from corporation_loan_application;
+from user;
 -- 查询企业贷款表
 select *
 from corporation_loan_application;

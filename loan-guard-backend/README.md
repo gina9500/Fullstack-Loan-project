@@ -11,7 +11,6 @@
 - **后端框架**：Spring Boot 3.5.7
 - **ORM 框架**：MyBatis 3.0.5
 - **数据库**：MySQL
-- **开发语言**：Java 17
 - **辅助工具**：Lombok
 
 ## 3. 项目结构
@@ -44,41 +43,57 @@ loan-guard-backend/
 ├── pom.xml # Maven 配置文件
 └── README.md # 项目说明文档
 
-## 4. 主要功能模块
+## 4. 核心功能及实现
 
-### 4.1 用户管理模块
+# 4.1. 用户认证功能
 
-- 用户登录验证
+实现方式：通过 UserController 的 login 方法（/api/user/login）处理登录请求
 
-### 4.2 贷款申请模块
+业务流程：
+验证用户名和密码参数
+调用 UserService.auth 方法验证用户
+验证通过后将用户 ID 存入 Session
+返回 ResponseResult 封装的登录结果
+数据访问：UserMapper.findByUserId 根据用户 ID 查询用户信息
 
-- 企业贷款申请：支持企业基本信息录入、财务数据上传等
-- 个人贷款申请：只做跳转
+# 4.2. 企业贷款申请功能
 
-## 5. API 接口说明
+    1. 表单数据检查：
+        CorporationLoanController.checkLoanApplication（/api/loan/corporation/check）
 
-### 5.1 用户相关接口
+    验证统一社会信用代码格式（18 位英数字，不能纯数字或纯字母）
+    验证还款账户号码（19 位数字）
+    验证贷款金额（非负数）
+    根据贷款类型验证期限（信用贷款不超过 5 年，税贷不超过 2 年）
+    返回验证结果和表单数据
 
-| `/api/users/login` | POST | 用户登录
+    2. 财务文件处理：
+    支持上传 JSON 格式的财务证明文件
+    通过 extractFinancialData 方法解析 JSON 内容,存到"C:\\uploads\\financial_files"路径
+    将提取的财务数据添加到返回响应中
 
-### 5.2 企业贷款申请接口
+    3. 贷款申请保存：
+        CorporationLoanController.saveLoanApplication（/api/loan/corporation/confirm）
 
-| `/api/loan/infoSubmit` | POST | 创建企业贷款申请
+    从 Session 获取当前登录用户 ID
+    调用 CorporationLoanService.saveLoanApplication 保存申请
+    创建 CorporationLoan 实体并设置相关字段
+    通过 CorporationLoanMapper.insert 保存到数据库
+    返回保存结果
 
-### 6. 数据库表设计
+### 5. 数据库表设计
 
 1. user - 用户信息表
 2. corporation_loan_application - 企业贷款申请表
-3. file - 文件信息表
 
 # 数据库初始化
 
 数据库脚本：init_database.sql
 
-# 编译项目
-
-mvn clean install
-
 # Swagger 接口文档
 
 http://localhost:8080/swagger-ui/index.html
+
+# 编译项目
+
+mvn clean install

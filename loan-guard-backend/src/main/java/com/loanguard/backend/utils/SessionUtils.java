@@ -6,6 +6,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Component;
 
+/*
+ * 获取登录用户ID帮助类
+ */
 @Component
 public class SessionUtils {
 

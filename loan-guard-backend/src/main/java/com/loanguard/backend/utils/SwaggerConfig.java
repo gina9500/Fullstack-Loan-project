@@ -11,7 +11,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 
 /*
- * Swagger用
+ * Swagger接口文档
  */
 @Configuration
 public class SwaggerConfig {

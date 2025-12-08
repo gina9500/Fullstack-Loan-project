@@ -69,25 +69,25 @@ useEffect(() => {
       
       console.log('专门提取的文件名:', restoredFileName);
       
-      // 然后提取表单数据
-      // 情况1: 数据直接在顶层（从确认页面返回时的情况）
+      // 提取表单数据
+      // 1: 数据直接在顶层（从确认页面返回时的情况）
       if (parsedData.entName || parsedData.uscc) {
         formDataToRestore = parsedData;
       }
-      // 情况2: 数据在formData字段中（当前版本正常提交情况）
+      // 2: 数据在formData字段中（当前版本正常提交情况）
       else if (parsedData.formData) {
         formDataToRestore = parsedData.formData;
       }
-      // 情况3: 数据在data字段中
+      // 3: 数据在data字段中
       else if (parsedData.data) {
         formDataToRestore = parsedData.data;
       }
-      // 情况4: 数据在data.formData字段中
+      // 4: 数据在data.formData字段中
       else if (parsedData.data && parsedData.data.formData) {
         formDataToRestore = parsedData.data.formData;
       }
       
-      console.log('最终要恢复的数据:', formDataToRestore);
+      console.log('要恢复的数据:', formDataToRestore);
       
       // 只恢复表单中定义的字段
       const validFormData = Object.keys(formData).reduce((acc, key) => {

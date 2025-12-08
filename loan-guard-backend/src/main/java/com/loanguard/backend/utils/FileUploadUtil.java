@@ -10,10 +10,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+/*
+ * 财务文件上传帮助类
+ */
 @Component
 public class FileUploadUtil {
 
-    // 直接使用硬编码的上传路径，不依赖配置文件
+    // 财务数据文件的上传路径
     private static final String UPLOAD_DIR = "C:\\uploads\\financial_files";
 
     /**
