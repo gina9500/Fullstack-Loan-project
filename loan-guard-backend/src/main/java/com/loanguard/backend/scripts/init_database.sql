@@ -30,20 +30,13 @@ CREATE TABLE IF NOT EXISTS corporation_loan_application (
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
--- 创建文件表
-CREATE TABLE IF NOT EXISTS file (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    application_id BIGINT NOT NULL COMMENT '关联申请ID',
-    file_name VARCHAR(255) NOT NULL COMMENT '文件名',
-    file_path VARCHAR(255) NOT NULL COMMENT '文件路径',
-    file_type VARCHAR(50) COMMENT '文件类型',
-    file_size BIGINT COMMENT '文件大小',
-    upload_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (application_id) REFERENCES corporation_loan_application(id)
-);
 -- 插入测试用户数据
 INSERT INTO user (user_id, password, role)
 VALUES ('user1', 'user1234', 'corporation'),
     ('user2', 'user1234', 'personal');
+-- 查询用户表
 select *
-from user;
+from corporation_loan_application;
+-- 查询企业贷款表
+select *
+from corporation_loan_application;
