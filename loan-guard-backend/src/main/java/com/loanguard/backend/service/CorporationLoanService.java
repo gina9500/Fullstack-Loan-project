@@ -121,7 +121,7 @@ public class CorporationLoanService {
         } else {
             try {
                 BigDecimal amount = requestDTO.getLoanAmount();
-                if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                if (amount.compareTo(BigDecimal.ZERO) < 0) {
                     fieldErrors.put("loanAmount", MsgCode.LOAN_AMOUNT_ERROR.getMessage());
                 }
             } catch (Exception e) {

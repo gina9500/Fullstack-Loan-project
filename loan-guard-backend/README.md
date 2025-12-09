@@ -72,7 +72,7 @@ loan-guard-backend/
     通过 extractFinancialData 方法解析 JSON 内容,存到"C:\\uploads\\financial_files"路径
     将提取的财务数据添加到返回响应中
 
-    3. 贷款申请保存：
+    3. 贷款申请DB存储：
         CorporationLoanController.saveLoanApplication（/api/loan/corporation/confirm）
 
     从 Session 获取当前登录用户 ID

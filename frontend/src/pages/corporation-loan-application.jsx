@@ -70,11 +70,11 @@ useEffect(() => {
       console.log('专门提取的文件名:', restoredFileName);
       
       // 提取表单数据
-      // 1: 数据直接在顶层（从确认页面返回时的情况）
+      // 1: 数据直接在顶层
       if (parsedData.entName || parsedData.uscc) {
         formDataToRestore = parsedData;
       }
-      // 2: 数据在formData字段中（当前版本正常提交情况）
+      // 2: 数据在formData字段中
       else if (parsedData.formData) {
         formDataToRestore = parsedData.formData;
       }
