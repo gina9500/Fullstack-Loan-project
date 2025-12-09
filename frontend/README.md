@@ -88,8 +88,3 @@ npm run dev
 # 财务数据图表
 
 npm install recharts
-
-## 2025/12/2~2025/12/8 3nd review
-
-后端相关 check
-表设计

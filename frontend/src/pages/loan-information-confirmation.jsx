@@ -222,7 +222,7 @@ const handleBack = () => {
             <div className="form-row">
               <div className="form-field">
                 <label>Loan Amount</label>
-                <div className="form-value">{applicationData.loanAmount || '-'}</div>
+                <div className="form-value">{applicationData.loanAmount !== undefined && applicationData.loanAmount !== null && applicationData.loanAmount !== '' ? applicationData.loanAmount : '-'}</div>
               </div>
             </div>
             

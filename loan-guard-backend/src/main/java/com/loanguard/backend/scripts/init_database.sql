@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS corporation_loan_application (
     company_address VARCHAR(255) NOT NULL COMMENT '企业地址',
     repay_account_bank VARCHAR(100) NOT NULL COMMENT '还款账户银行',
     repay_account_no VARCHAR(19) NOT NULL COMMENT '还款账户号码,19位数字',
-    loan_amount DECIMAL(15, 2) NOT NULL CHECK (loan_amount > 0) COMMENT '贷款申请金额,不能为负数',
+    loan_amount DECIMAL(15, 2) NOT NULL CHECK (loan_amount >= 0) COMMENT '贷款申请金额,不能为负数',
     loan_term VARCHAR(20) NOT NULL COMMENT '期限',
     loan_purpose VARCHAR(255) NOT NULL COMMENT '贷款目的',
     prop_proof_type VARCHAR(100) NOT NULL COMMENT '财产证明类型',
