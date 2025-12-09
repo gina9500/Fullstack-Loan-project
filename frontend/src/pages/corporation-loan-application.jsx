@@ -213,9 +213,9 @@ const handleFileChange = async (name, event) => {
       newErrors.companyEmail = 'Please enter a valid email address';
     }
     // 验证贷款申请金额(非负数)
-    if (!formData.loanAmount) newErrors.loanAmount = 'Loan amount is required';
-    if (formData.loanAmount && (!/^(?:0\.\d{1,2}|[1-9]\d*(?:\.\d{1,2})?)$/.test(formData.loanAmount) || parseFloat(formData.loanAmount) <= 0)) {
-      newErrors.loanAmount = 'Please enter a valid positive number';
+    if (formData.loanAmount === '') newErrors.loanAmount = 'Loan amount is required';
+    if (formData.loanAmount && (!/^(?:0(?:\.\d{1,2})?|[1-9]\d*(?:\.\d{1,2})?)$/.test(formData.loanAmount) || parseFloat(formData.loanAmount) < 0)) {
+      newErrors.loanAmount = 'Please enter a valid non-negative number';
     }
     // 必填字段验证
     if (!formData.loanTerm) newErrors.loanTerm = 'Loan term is required';
