@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS corporation_loan_application (
     loan_term VARCHAR(20) NOT NULL COMMENT '期限',
     loan_purpose VARCHAR(255) NOT NULL COMMENT '贷款目的',
     prop_proof_type VARCHAR(100) NOT NULL COMMENT '财产证明类型',
-    industry_category VARCHAR(100) NOT NULL COMMENT '所属行业',
+    industry_category VARCHAR(100) COMMENT '所属行业',
     status VARCHAR(20) DEFAULT 'pending',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
