@@ -21,7 +21,7 @@ public class SwaggerConfig {
                 return new OpenAPI()
                                 .info(new Info()
                                                 .title("贷款风险评估管理系统")
-                                                .description("航贷款风险评估系统的API文档")
+                                                .description("贷款风险评估系统的API文档")
                                                 .contact(new Contact()
                                                                 .name("testuser")
                                                                 .url("xxxxxxxx")))

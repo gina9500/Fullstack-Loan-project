@@ -17,12 +17,11 @@ import com.loanguard.backend.common.ServiceException;
 import com.loanguard.backend.dto.LoginRequestDTO;
 import com.loanguard.backend.model.User;
 import com.loanguard.backend.service.UserService;
+import com.loanguard.backend.utils.JwtUtils;
 
 /**
  * 用户控制层
  */
-import jakarta.servlet.http.HttpSession;
-
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -32,10 +31,13 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/login")
-    public ResponseResult<?> login(@RequestBody LoginRequestDTO loginRequest, HttpSession session) {
+    @Autowired
+    private JwtUtils jwtUtils;
 
-        logger.error("用户登录请求执行", loginRequest, session);
+    @PostMapping("/login")
+    public ResponseResult<?> login(@RequestBody LoginRequestDTO loginRequest) {
+
+        logger.info("用户登录请求执行，请求参数: {}", loginRequest);
 
         try {
             // 获取用户输入的用户名和密码
@@ -53,14 +55,14 @@ public class UserController {
             // 调用验证方法
             User user = userService.auth(userId, password);
 
-            // 保存用户信息到Session
-            session.setAttribute("currentUser", user);
-            session.setAttribute("userId", user.getUserId()); // 保存真实用户ID
+            // 生成JWT Token
+            String token = jwtUtils.generateToken(user.getUserId(), user.getRole());
 
-            // 登录成功，返回用户信息
+            // 登录成功，返回用户信息和Token
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("role", user.getRole());
             userInfo.put("userId", user.getUserId());
+            userInfo.put("token", token);
 
             logger.error("登录成功,返回用户信息: {}", userInfo);
 
@@ -70,7 +72,6 @@ public class UserController {
             // 处理业务异常
             return ResponseResult.fail(e.getMessage());
         } catch (Exception e) {
-
             e.printStackTrace();
             // 处理其他异常
             return ResponseResult.fail(MsgCode.SYSTEM_ERROR.getMessage());

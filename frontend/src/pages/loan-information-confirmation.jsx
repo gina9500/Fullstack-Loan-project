@@ -20,7 +20,6 @@ const LoanInformationConfirmation = () => {
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
-        console.log('解析后的数据:', parsedData);
         
         // 处理不同的数据结构情况
         let applicationDataToSet;

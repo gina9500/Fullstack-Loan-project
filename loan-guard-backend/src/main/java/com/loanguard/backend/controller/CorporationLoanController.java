@@ -43,16 +43,18 @@ public class CorporationLoanController {
             @ModelAttribute CorporationLoanRequestDTO requestDTO,
             @RequestParam("propProofDocs") MultipartFile propProofDocs) {
 
-        logger.error("企业贷款表单数据检查执行", requestDTO, propProofDocs);
+        logger.info("企业贷款表单数据检查执行，请求数据: {}, 文件: {}", requestDTO, propProofDocs.getOriginalFilename());
 
         try {
+
             // 获取真实的当前登录用户ID
             String userId = sessionUtils.getCurrentUserId();
 
-            // 验证用户是否已登录
-            if (userId == null) {
-                return ResponseResult.fail(MsgCode.USER_NOT_LOGGED_IN.getMessage());
-            }
+            // jwt认证 DELETE 在JwtInterceptor中已处理
+            // // 验证用户是否已登录
+            // if (userId == null) {
+            // return ResponseResult.fail(MsgCode.USER_NOT_LOGGED_IN.getMessage());
+            // }
 
             // 调用服务层处理
             Map<String, Object> result = corporationLoanService.checkLoanApplication(userId, requestDTO,

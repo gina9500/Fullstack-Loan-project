@@ -13,6 +13,9 @@ const SelectField = ({
   required = false,
   placeholder = 'Please select'
 }) => {
+  // 确保value永远不会是null，使用空字符串代替
+  const selectValue = value === null ? '' : value;
+  
   return (
     <div className="select-field">
       <label htmlFor={name}>
@@ -22,7 +25,7 @@ const SelectField = ({
       <select
         id={name}
         name={name}
-        value={value}
+        value={selectValue}  // 使用处理后的value
         onChange={onChange}
         className={error ? 'error' : ''}
       >

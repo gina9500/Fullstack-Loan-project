@@ -38,7 +38,11 @@ public enum MsgCode {
     SUBMIT_SUCCESS("200-3", "提交成功"),
 
     // 用户相关消息
-    USER_NOT_LOGGED_IN("401", "用户未登录，请先登录");
+    USER_NOT_LOGGED_IN("401", "用户未登录，请先登录"),
+
+    // JWT相关消息
+    TOKEN_MISSING("4011", "Token不存在或格式错误"),
+    TOKEN_INVALID("4012", "Token无效或已过期");
 
     private final String code;
     private final String message;

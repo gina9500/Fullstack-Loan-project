@@ -37,13 +37,11 @@ useEffect(() => {
   const savedData = localStorage.getItem('loanApplication');
   const retainDataFlag = localStorage.getItem('retainData');
 
-  console.log('savedData:', savedData);
-  console.log('retainDataFlag:', retainDataFlag);
+  // console.log('savedData:', savedData);
 
   if (savedData && retainDataFlag === 'true') {
     try {
       const parsedData = JSON.parse(savedData);
-      console.log('解析后的数据:', parsedData);
       
       // 尝试多种数据结构提取表单数据
       let formDataToRestore = {};
@@ -67,8 +65,6 @@ useEffect(() => {
         restoredFileName = parsedData.data.formData.propProofDocsName;
       }
       
-      console.log('专门提取的文件名:', restoredFileName);
-      
       // 提取表单数据
       // 1: 数据直接在顶层
       if (parsedData.entName || parsedData.uscc) {
@@ -87,8 +83,6 @@ useEffect(() => {
         formDataToRestore = parsedData.data.formData;
       }
       
-      console.log('要恢复的数据:', formDataToRestore);
-      
       // 只恢复表单中定义的字段
       const validFormData = Object.keys(formData).reduce((acc, key) => {
         if (formDataToRestore[key] !== undefined) {
@@ -97,8 +91,6 @@ useEffect(() => {
         return acc;
       }, {});
       
-      console.log('过滤后的有效数据:', validFormData);
-      
       // 恢复表单数据，确保文件名被正确设置
       setFormData(prev => ({
         ...prev,
@@ -106,16 +98,13 @@ useEffect(() => {
         propProofDocsName: restoredFileName
       }));
       
-      console.log('数据恢复完成，文件名:', restoredFileName);
-      
       // 清除retainData标记，因为数据已经恢复
       localStorage.removeItem('retainData');
-      console.log('数据恢复完成');
     } catch (err) {
       console.error('解析保存的数据失败:', err);
     }
   }  else {
-    console.log('没有找到需要恢复的数据');
+    // console.log('没有需要恢复的数据');
   }
 }, []);
 
@@ -151,7 +140,7 @@ const handleFileChange = async (name, event) => {
   const file = event && event.target && event.target.files ? event.target.files[0] : null;
   console.log('文件上传:', name, '事件类型:', typeof event, '文件对象:', file);
   
-  // 修改为接受JSON文件而不是Excel文件
+  // 修改为接受JSON文件
   if (name === 'propProofDocs' && file) {
     // 只检查文件扩展名是否为.json
     if (!file.name.endsWith('.json')) {

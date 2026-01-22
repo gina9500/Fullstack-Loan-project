@@ -3,7 +3,7 @@ package com.loanguard.backend.utils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 
 /*
@@ -16,23 +16,33 @@ public class SessionUtils {
      * 获取当前登录用户ID
      */
     public String getCurrentUserId() {
-        HttpSession session = getSession();
-        if (session != null) {
-            return (String) session.getAttribute("userId");
+        HttpServletRequest request = getRequest();
+        if (request != null) {
+            return (String) request.getAttribute("userId");
         }
         return null;
     }
 
     /**
-     * 获取Session对象
+     * 获取当前登录用户角色
      */
-    private HttpSession getSession() {
-        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
-                .getRequestAttributes();
-        if (requestAttributes != null) {
-            return requestAttributes.getRequest().getSession();
+    public String getCurrentUserRole() {
+        HttpServletRequest request = getRequest();
+        if (request != null) {
+            return (String) request.getAttribute("role");
         }
         return null;
     }
 
+    /**
+     * 获取Request对象
+     */
+    private HttpServletRequest getRequest() {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
+                .getRequestAttributes();
+        if (requestAttributes != null) {
+            return requestAttributes.getRequest();
+        }
+        return null;
+    }
 }

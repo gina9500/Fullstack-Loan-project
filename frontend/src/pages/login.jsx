@@ -1,5 +1,5 @@
 // 登录页面
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InputField from '../components/form/InputField';
 import { login } from '../api/user';
@@ -24,6 +24,21 @@ const Login = () => {
   
   // 加载状态，用于显示登录过程中的加载状态
   const [isLoading, setIsLoading] = useState(false);
+
+  // 组件挂载时检查是否有登录错误提示
+  useEffect(() => {
+    // 检查localStorage中是否有登录错误信息
+    const loginError = localStorage.getItem('loginError');
+    if (loginError) {
+      // 设置错误信息
+      setErrors(prev => ({
+        ...prev,
+        submit: loginError
+      }));
+      // 清除localStorage中的错误信息，避免重复显示
+      localStorage.removeItem('loginError');
+    }
+  }, []);
 
   /**
    * 处理表单输入变化
@@ -109,6 +124,24 @@ const Login = () => {
           submit: response.message || '登录失败，请稍后重试'
         });
         return; 
+      }
+    
+      // 存储token和用户信息到本地存储
+      if (response.data) {
+        // 存储token
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+          console.log("Token已存储到localStorage,Token是"+response.data.token);
+        }
+        
+        // 存储用户信息
+        const userInfo = {
+          userId: response.data.userId || formData.userId,
+          role: response.data.role,
+          // 可以根据需要添加更多用户信息
+        };
+        localStorage.setItem('userInfo', JSON.stringify(userInfo));
+        console.log("用户信息已存储到localStorage");
       }
     
       // 只有当success不为false时才进行页面跳转

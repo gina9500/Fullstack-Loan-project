@@ -8,39 +8,72 @@ import config from '../config/env';
  * @returns {Promise} - 返回Promise对象
  */
 async function request(url, options = {}) {
-  const defaultOptions = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-  };
-
-  const mergedOptions = {
-    ...defaultOptions,
-    ...options,
-    headers: {
-      ...defaultOptions.headers,
-      ...options.headers,
-    },
-  };
-
   // 构建完整的URL
   const fullUrl = `${config.API_BASE_URL}${url}`;
+  
+  // 创建基本请求选项
+  const requestOptions = {
+    ...options,
+    credentials: 'include', // 始终包含凭证
+  };
+  
+  // 只在不是FormData请求且没有设置Content-Type时，才设置默认的Content-Type
+  if (!options.isFormData && !requestOptions.headers?.['Content-Type'] && !requestOptions.headers?.['content-type']) {
+    requestOptions.headers = {
+      ...requestOptions.headers,
+      'Content-Type': 'application/json',
+    };
+  }
+
+  console.log("发送请求到:", fullUrl);
 
   try {
-    const response = await fetch(fullUrl, mergedOptions);
+    
+    // 添加请求超时机制（30秒）
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('请求超时，请稍后重试'));
+      }, 30000);
+    });
+    
+    // 使用Promise.race实现超时处理
+    const response = await Promise.race([
+      fetch(fullUrl, requestOptions),
+      timeoutPromise
+    ]);
+    
+    // 处理OPTIONS请求的204状态
+    if (response.status === 204) {
+      return null;
+    }
     
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        errorData = await response.text();
+      }
+      throw new Error(`HTTP error! Status: ${response.status}. Details: ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
+
     return data;
   } catch (error) {
-    console.error('Request failed:', error);
-    throw error;
+  console.error('Request failed:', error);
+  // 检查是否是401错误
+  if (error.message.includes('401')) {
+      // 清除token和用户信息
+      localStorage.removeItem('token');
+      localStorage.removeItem('userInfo');
+      // 可以添加一个临时的错误提示
+      localStorage.setItem('loginError', 'Token已过期,请重新登录');
+      // 最后跳转到登录页面
+      window.location.href = '/login';
   }
+  throw error;
+}
 }
 
 /**
@@ -73,30 +106,54 @@ export function get(url, params = {}, options = {}) {
  * @returns {Promise} - 返回Promise对象
  */
 export function post(url, data = {}, options = {}) {
-  // 对于FormData对象，不进行JSON序列化且不设置Content-Type
+  // 检查是否为FormData请求
   const isFormData = data instanceof FormData;
   
-  // 当是FormData时，需要移除Content-Type，让浏览器自动设置
-  const requestOptions = {
-    method: 'POST',
-    ...options,
-    body: isFormData ? data : JSON.stringify(data),
-  };
+  // 获取token
+  const token = localStorage.getItem('token');
   
-  // 如果是FormData，确保不设置Content-Type
+  // 针对FormData请求的特殊处理
   if (isFormData) {
-    requestOptions.headers = {}; // 清空headers，让浏览器自动设置multipart/form-data
-    // 仅添加用户自定义的其他headers（如果有）
-    if (options.headers) {
-      Object.keys(options.headers).forEach(key => {
-        if (key.toLowerCase() !== 'content-type') {
-          requestOptions.headers[key] = options.headers[key];
-        }
-      });
+    const formDataOptions = {
+      method: 'POST',
+      isFormData: true,
+      body: data,
+      // 不要继承options中的headers，而是在下面手动处理
+      ...options,
+      headers: undefined // 清除options中的headers
+    };
+    
+    // 如果有token，只添加Authorization头，不包含任何其他头
+    if (token) {
+      formDataOptions.headers = {
+        Authorization: `Bearer ${token}`
+      };
+    } else {
+      // 如果没有token，确保不设置任何headers
+      formDataOptions.headers = undefined;
     }
+    
+    return request(url, formDataOptions);
+  } else {
+    // 非FormData请求的标准处理
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers
+    };
+    
+    // 如果有token，添加Authorization头
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    
+    const standardOptions = {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+      ...options
+    };
+    return request(url, standardOptions);
   }
-  
-  return request(url, requestOptions);
 }
 
 export default request;

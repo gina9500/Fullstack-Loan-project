@@ -38,27 +38,12 @@ export async function checkCorporationLoan(data, file) {
   }
   
   try {
-
-    const url = 'http://localhost:8080/api/loan/corporation/check';
+    // 使用request.js中的post函数发送请求，这样可以正确处理FormData
+    const response = await post('/loan/corporation/check', formData);
     
-    const response = await fetch(url, {
-      method: 'POST',
-      credentials: 'include',
-      body: formData
-    });
+    console.log('后端返回响应:', response);
     
-    if (!response.ok) {
-      let errorDetails = '';
-      try {
-        const errorData = await response.json();
-        errorDetails = JSON.stringify(errorData);
-      } catch (e) {
-        errorDetails = await response.text();
-      }
-      throw new Error(`HTTP error! Status: ${response.status}. Details: ${errorDetails}`);
-    }
-    
-    return await response.json();
+    return response;
   } catch (error) {
     if (error.message.includes('Failed to fetch')) {
       // 错误的特殊处理
@@ -70,11 +55,13 @@ export async function checkCorporationLoan(data, file) {
 }
 
 /**
- * 提交贷款申请确认
- * @param {Object} applicationData - 完整的贷款申请数据
+ * 提交贷款确认信息
+ * @param {Object} applicationData - 贷款申请数据
  * @returns {Promise} - 返回Promise对象
  */
-export async function submitLoanConfirmation(applicationData) {
+async function submitLoanConfirmation(applicationData) {
   const url = '/loan/corporation/confirm';
   return post(url, applicationData);
 }
+
+export { submitLoanConfirmation };

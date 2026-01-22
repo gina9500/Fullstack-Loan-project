@@ -97,3 +97,39 @@ http://localhost:8080/swagger-ui/index.html
 # 编译项目
 
 mvn clean install
+
+###### JWT认证（chenjinjin 20260121~20260303）######
+
+### 1.JWT认证流程：
+
+# 1.1 用户登录的流程：适用于登录接口（/api/user/login）
+
+用户发送登录请求到 /api/user/login，UserController接收请求，验证参数
+调用UserService.auth()方法验证用户名和密码
+验证通过后，调用JwtUtils.generateToken()生成Token
+返回Token给客户端
+
+# 1.2 API请求的认证流程：适用于除登录外的API接口（/api/loan/）
+
+客户端发送API请求，在请求头中携带token
+请求到达WebConfig配置的拦截器，拦截所有以/api/开头的请求，排除登录接口/api/user/login
+JwtInterceptor拦截请求，获取Token，验证Token的有效性
+验证通过后，将用户信息设置到请求属性中
+继续处理请求，控制器可以通过SessionUtils获取用户信息
+
+### 2. 核心组件
+
+2.1 用户登录控制器 (UserController)
+功能：处理用户登录请求，实现参数校验和登录流程控制
+2.2 用户服务层 (UserService)
+功能：实现用户身份验证逻辑
+2.3 JWT工具类 (JwtUtils)
+功能：实现JWT Token的生成、解析和验证
+2.4 JWT配置属性 (JwtProperties)
+功能：从application.properties中读取JWT配置
+2.5 JWT拦截器 (JwtInterceptor)
+功能：拦截所有API请求，验证Token的有效性
+2.6 配置文件 (application.properties)
+功能：存储JWT相关配置，如密钥和过期时间
+2.7 web配置类 (WebConfig)
+功能：配置拦截器链，将JwtInterceptor添加到拦截器列表中
