@@ -69,6 +69,34 @@ const isTokenExpired = (token) => {
 };
 
 /**
+ * 清除所有相关的storage数据
+ */
+const clearAllStorageData = () => {
+  console.log('开始清除所有storage数据...');
+  
+  // 列出所有需要清除的数据键
+  const storageKeys = [
+    'token',
+    'userInfo',
+    'loanApplication',
+    'retainData',
+    'loginError'
+  ];
+  
+  // 清除每个键
+  storageKeys.forEach(key => {
+    if (localStorage.getItem(key)) {
+      console.log(`删除storage数据: ${key} = ${localStorage.getItem(key)}`);
+      localStorage.removeItem(key);
+    }
+  });
+  
+  // 检查是否还有其他相关数据
+  console.log('清除后剩余的storage数据键:', Object.keys(localStorage));
+  console.log('所有相关storage数据已清除');
+};
+
+/**
  * 权限验证路由组件
  * @param {Object} props - 组件属性
  * @param {React.Component} props.element - 要渲染的组件
@@ -96,6 +124,8 @@ const PrivateRoute = ({ element, allowedRoles }) => {
       // 检查Token是否存在
       if (!token) {
         console.log('Token不存在，验证失败');
+        clearAllStorageData();
+        localStorage.setItem('loginError', '请先登录');
         setIsValid(false);
         setIsLoading(false);
         return;
@@ -104,10 +134,13 @@ const PrivateRoute = ({ element, allowedRoles }) => {
       // 检查Token是否已过期
       if (isTokenExpired(token)) {
         console.log('Token已过期，验证失败');
-        // Token已过期，清除localStorage中的信息
-        localStorage.removeItem('token');
-        localStorage.removeItem('userInfo');
+        
+        // 清除所有相关的storage数据
+        clearAllStorageData();
+        
+        // 设置登录错误信息
         localStorage.setItem('loginError', 'Token已过期,请重新登录');
+        
         setIsValid(false);
         setIsLoading(false);
         return;
@@ -116,6 +149,8 @@ const PrivateRoute = ({ element, allowedRoles }) => {
       // 检查用户信息是否存在
       if (!userInfoStr) {
         console.log('用户信息不存在，验证失败');
+        clearAllStorageData();
+        localStorage.setItem('loginError', '用户信息已失效,请重新登录');
         setIsValid(false);
         setIsLoading(false);
         return;
@@ -145,6 +180,9 @@ const PrivateRoute = ({ element, allowedRoles }) => {
           console.warn('角色不匹配，无法访问该页面');
         }
       } catch (error) {
+        console.error('解析用户信息失败:', error);
+        clearAllStorageData();
+        localStorage.setItem('loginError', '用户信息解析失败,请重新登录');
         setIsValid(false);
       } finally {
         setIsLoading(false);
