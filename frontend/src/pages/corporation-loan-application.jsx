@@ -39,6 +39,23 @@ useEffect(() => {
   const savedData = localStorage.getItem('loanApplication');
   const retainDataFlag = localStorage.getItem('retainData');
 
+  // 从sessionStorage恢复文件
+  const savedFileData = sessionStorage.getItem('propProofDocs');
+  if (savedFileData) {
+    try {
+      const { name, content, type } = JSON.parse(savedFileData);
+      const file = base64ToFile(content, name, type);
+      setFormData(prev => ({
+        ...prev,
+        propProofDocs: file,
+        propProofDocsName: name
+      }));
+    } catch (err) {
+      console.error('解析保存的文件失败:', err);
+      sessionStorage.removeItem('propProofDocs');
+    }
+  }
+
   // console.log('savedData:', savedData);
 
   if (savedData && retainDataFlag === 'true') {
@@ -87,7 +104,7 @@ useEffect(() => {
       
       // 只恢复表单中定义的字段
       const validFormData = Object.keys(formData).reduce((acc, key) => {
-        if (formDataToRestore[key] !== undefined) {
+        if (formDataToRestore[key] !== undefined && key !== 'propProofDocs') {
           acc[key] = formDataToRestore[key];
         }
         return acc;
@@ -136,6 +153,39 @@ useEffect(() => {
   };
 
   /**
+   * Base64转File对象
+   */
+  const base64ToFile = (base64, fileName, mimeType) => {
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+    return new File(byteArrays, fileName, { type: mimeType });
+  };
+
+  /**
+   * File对象转Base64
+   */
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target.result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  /**
    * 处理文件上传
    */
 const handleFileChange = async (name, event) => {
@@ -148,6 +198,18 @@ const handleFileChange = async (name, event) => {
     if (!file.name.endsWith('.json')) {
       alert('请上传JSON文件(.json格式)');
       return;
+    }
+    
+    // 将文件保存到sessionStorage
+    try {
+      const base64Content = await fileToBase64(file);
+      sessionStorage.setItem('propProofDocs', JSON.stringify({
+        name: file.name,
+        content: base64Content,
+        type: file.type || 'application/json'
+      }));
+    } catch (err) {
+      console.error('保存文件失败:', err);
     }
     
     // 直接保存文件，不进行前端解析
@@ -213,7 +275,6 @@ const handleFileChange = async (name, event) => {
     if (!formData.loanPurpose) newErrors.loanPurpose = 'Loan purpose is required';
     if (!formData.propProofType) newErrors.propProofType = 'Property proof type is required';
     // 文件验证：必须上传实际文件对象才能提交
-    // 当用户返回页面时，文件名会显示但文件对象已丢失，需要重新上传
     if (!formData.propProofDocs) {
       // 如果有文件名显示但没有文件对象，提示用户重新上传
       if (formData.propProofDocsName) {
