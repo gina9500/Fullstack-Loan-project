@@ -1,16 +1,18 @@
 // 贷款结果页面
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import BaseLayout from '../components/layout/BaseLayout';
 import './loan-result.css';
 
 const LoanResult = () => {
+  const navigate = useNavigate();
 
   // 处理重新评估按钮点击事件
   const handleReEvaluation = () => {
     // 记录需要保留的数据标记
     localStorage.setItem('retainData', 'true');
-    // 跳转到企业贷款申请页面
-    window.location.href = '/corporation-loan-application';
+    // 使用React Router导航到企业贷款申请页面，并传递状态信息
+    navigate('/corporation-loan-application', { state: { fromButton: true } });
   };
 
   // 组件渲染

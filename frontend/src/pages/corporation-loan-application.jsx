@@ -6,6 +6,7 @@ import SelectField from '../components/form/SelectField';
 import FileUploadField from '../components/form/FileUploadField';
 import { checkCorporationLoan } from '../api/loan';
 import './corporation-loan-application.css';
+import { useNavigate } from 'react-router-dom';
 
 
 /**
@@ -13,6 +14,7 @@ import './corporation-loan-application.css';
  * 负责处理企业贷款表单的所有功能，数据收集、验证和提交
  */
 const CorporationLoanApplication = () => {
+  const navigate = useNavigate();
 
   // 表单数据初始化所有表单字段为默认值
   const [formData, setFormData] = useState({
@@ -272,7 +274,7 @@ if (response.success) {
   localStorage.setItem('retainData', 'true');
   
   // 跳转到确认页面
-  window.location.href = '/loan-information-confirmation';
+  navigate('/loan-information-confirmation', { state: { fromButton: true } });
 } else {
       // 处理后端返回的错误信息
       const newErrors = {};

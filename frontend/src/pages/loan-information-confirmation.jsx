@@ -1,5 +1,6 @@
 // 贷款信息确认页面
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BaseLayout from '../components/layout/BaseLayout';
 import './loan-information-confirmation.css';
 // 导入FinancialChart组件
@@ -7,6 +8,7 @@ import FinancialChart from './FinancialChart';
 import { submitLoanConfirmation } from '../api/loan';
 
 const LoanInformationConfirmation = () => {
+  const navigate = useNavigate();
   const [applicationData, setApplicationData] = useState(null);
   const [financialData, setFinancialData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -122,8 +124,8 @@ const handleConfirm = async () => {
     
     // 处理API响应
     if (response.success) {
-      // 如果成功，跳转到结果页面
-      window.location.href = '/loan-result';
+      // 如果成功，使用React Router导航到结果页面，并传递状态信息
+      navigate('/loan-result', { state: { fromButton: true } });
     } else {
       // 如果失败，显示错误信息
       throw new Error(response.message || '提交失败，请稍后重试');
@@ -138,7 +140,8 @@ const handleConfirm = async () => {
 const handleBack = () => {
   // 设置retainData标记，指示需要保留表单数据
   localStorage.setItem('retainData', 'true');
-  window.location.href = '/corporation-loan-application';
+  // 使用React Router导航返回企业贷款申请页面，并传递状态信息
+  navigate('/corporation-loan-application', { state: { fromButton: true } });
 };
 
 
@@ -155,7 +158,7 @@ const handleBack = () => {
       <BaseLayout title="Loan Information Confirmation">
         <div className="error-message">
           {error || '申请信息不存在'}
-          <button onClick={() => window.location.href = '/'}>返回首页</button>
+          <button onClick={() => navigate('/')}>返回首页</button>
         </div>
       </BaseLayout>
     );
