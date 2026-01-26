@@ -104,9 +104,25 @@ const clearAllStorageData = () => {
  * 检查页面跳转是否合法
  * @param {string} currentPath - 当前访问的路径
  * @param {Object} location - 路由位置对象
+ * @param {string} userRole - 用户角色
  * @returns {boolean} - true表示合法跳转，false表示不合法跳转
  */
-const checkNavigationValid = (currentPath, location) => {
+const checkNavigationValid = (currentPath, location, userRole) => {
+  // 定义页面角色匹配规则
+  const pageRoleRules = {
+    '/personal-loan-application': 'per',
+    '/corporation-loan-application': 'corp',
+    '/loan-information-confirmation': 'corp',
+    '/loan-result': 'corp'
+  };
+
+  // 检查页面与角色是否匹配
+  const requiredRole = pageRoleRules[currentPath];
+  if (requiredRole && !userRole.includes(requiredRole)) {
+    console.log(`角色不匹配: 当前角色 ${userRole} 无法访问页面 ${currentPath}`);
+    return false;
+  }
+
   // 定义页面跳转规则
   const navigationRules = {
     // 正向跳转：入力→确认→结果（只允许按钮点击）
@@ -143,9 +159,10 @@ const checkNavigationValid = (currentPath, location) => {
   
   // 如果没有来源页面信息，说明是首次访问
   if (!lastVisitedPath) {
-    // 首次访问只允许访问入力页面
-    if (currentPath === '/corporation-loan-application') {
-      console.log('首次访问，允许访问入力页面');
+    // 首次访问只允许访问对应的入力页面
+    if ((userRole.includes('per') && currentPath === '/personal-loan-application') ||
+        (userRole.includes('corp') && currentPath === '/corporation-loan-application')) {
+      console.log('首次访问，允许访问对应角色的入力页面');
       return true;
     } else {
       console.log('首次访问，不允许访问非入力页面');
@@ -157,7 +174,7 @@ const checkNavigationValid = (currentPath, location) => {
   const lastIndex = navigationRules.forward.indexOf(lastVisitedPath);
   const currentIndex = navigationRules.forward.indexOf(currentPath);
   
-  // 如果来源页面或当前页面不在正向路径数组中，允许访问
+  // 如果来源页面或当前页面不在正向路径数组中，允许访问（例如个人贷款页面）
   if (lastIndex === -1 || currentIndex === -1) {
     console.log('来源页面或当前页面不在正向路径数组中，允许访问');
     return true;
@@ -181,6 +198,8 @@ const checkNavigationValid = (currentPath, location) => {
  */
 const renderPageByPath = (path, userRole) => {
   switch (path) {
+    case '/personal-loan-application':
+      return <PersonalLoanApplication />;
     case '/corporation-loan-application':
       return <CorporationLoanApplication />;
     case '/loan-information-confirmation':
@@ -286,7 +305,7 @@ const PrivateRoute = ({ element, allowedRoles }) => {
           setHasError(false);
           
           // 检查页面跳转是否合法
-          const navigationValid = checkNavigationValid(location.pathname, location);
+          const navigationValid = checkNavigationValid(location.pathname, location, role);
           setIsNavValid(navigationValid);
           
           if (!navigationValid) {
@@ -298,9 +317,9 @@ const PrivateRoute = ({ element, allowedRoles }) => {
           }
         } else {
           console.log('角色不在允许列表中，显示错误');
-          // 角色不匹配，显示错误但保持在原页面
+          // 角色不匹配，视为非法路径
           setIsValid(true); // Token有效
-          setHasError(true);
+          setIsNavValid(false); // 设置为非法路径
           console.warn('角色不匹配，无法访问该页面');
         }
       } catch (error) {
@@ -335,42 +354,13 @@ const PrivateRoute = ({ element, allowedRoles }) => {
     }
   };
 
-  // 如果角色不匹配，显示错误提示
-  if (hasError) {
-    return (
-      <>
-        <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: '#fff1f0',
-            border: '1px solid #ffccc7',
-            borderRadius: '0',
-            color: '#cf1322',
-            padding: '12px',
-            fontSize: '14px',
-            textAlign: 'center',
-            width: '100%',
-            boxSizing: 'border-box',
-            zIndex: 9999,
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
-          }}
-        >
-          角色不匹配，无法访问该页面
-        </div>
-        {getDefaultPage()}
-      </>
-    );
-  }
-
-  // 如果页面跳转不合法，显示错误提示并保持在原页面
+  // 如果页面跳转不合法（包括角色不匹配），显示错误提示并保持在原页面
   if (!isNavValid) {
     console.log('显示不合法路径错误提示');
     
     // 获取用户原来的页面
-    const originalPath = localStorage.getItem('lastVisitedPath') || '/corporation-loan-application';
+    const originalPath = localStorage.getItem('lastVisitedPath') || 
+                        (userRole.includes('per') ? '/personal-loan-application' : '/corporation-loan-application');
     
     console.log('保持在原页面:', originalPath);
     
