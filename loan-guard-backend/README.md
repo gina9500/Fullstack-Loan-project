@@ -98,7 +98,7 @@ http://localhost:8080/swagger-ui/index.html
 
 mvn clean install
 
-###### JWT认证（chenjinjin 20260121~20260303）######
+###### JWT认证（chenjinjin 20260121~20260303） ADD######
 
 ### 1.JWT认证流程：
 
@@ -117,19 +117,36 @@ JwtInterceptor拦截请求，获取Token，验证Token的有效性
 验证通过后，将用户信息设置到请求属性中
 继续处理请求，控制器可以通过SessionUtils获取用户信息
 
-### 2. 核心组件
+# 1.3 核心组件
 
-2.1 用户登录控制器 (UserController)
+1.用户登录控制器 (UserController)
 功能：处理用户登录请求，实现参数校验和登录流程控制
-2.2 用户服务层 (UserService)
-功能：实现用户身份验证逻辑
-2.3 JWT工具类 (JwtUtils)
+2.JWT工具类 (JwtUtils)
 功能：实现JWT Token的生成、解析和验证
-2.4 JWT配置属性 (JwtProperties)
+3.JWT配置属性 (JwtProperties)
 功能：从application.properties中读取JWT配置
-2.5 JWT拦截器 (JwtInterceptor)
-功能：拦截所有API请求，验证Token的有效性
-2.6 配置文件 (application.properties)
+4.JWT拦截器 (JwtInterceptor)
+功能：拦截所有API请求，验证Token的有效性5.配置文件 (application.properties)
 功能：存储JWT相关配置，如密钥和过期时间
-2.7 web配置类 (WebConfig)
+6.web配置类 (WebConfig)
 功能：配置拦截器链，将JwtInterceptor添加到拦截器列表中
+
+# 2.单点登录（No11）
+
+### 2.1 功能
+
+实现用户在多个客户端（如浏览器）登录后，在其他客户端登录时自动退出当前客户端
+
+业务流程：
+用户在浏览器A登录 -> TokenStore保存TokenA -> 用户在浏览器B登录 -> TokenStore保存TokenB ->
+浏览器A发送请求 -> TokenStore验证失败 -> 返回单点登录错误
+
+### 2.2 核心组件
+
+TokenStore.java - 用于存储和管理用户的有效Token，实现单点登录功能
+JwtUtils.java - #getClaimsFromToken 从Token中提取用户信息
+UserController - #login 登录时保存Token到TokenStore
+JwtInterceptor.java - #preHandle 检查Token是否为当前有效Token（单点登录验证）
+
+系统通过TokenStore组件实现单点登录，维护一个用户与当前有效Token的映射关系
+用户每次登录生成新Token并覆盖旧Token，请求验证时检查Token是否为当前有效Token

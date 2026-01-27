@@ -88,3 +88,29 @@ npm run dev
 # 财务数据图表
 
 npm install recharts
+
+###### JWT认证（chenjinjin 20260121~20260303） ADD######
+
+一、JWT认证实现流程
+
+1.登录获取Token：
+用户登录成功后，后端返回JWT Token和用户信息
+前端将Token和用户信息存储到localStorage
+
+2.单点登录访问控制：
+用户访问受保护路由时，PrivateRoute组件验证Token有效性
+
+3.API请求认证：
+所有API请求自动附加Token到请求头；后端验证Token有效性，无效则返回401错误
+
+4.Token本地验证：
+前端解析JWT获取过期时间（application.properties设置）
+检查Token是否过期，过期则自动登出
+
+二、单点登录实现流程（PrivateRoute.jsx）1.心跳检测机制：
+每3秒发送一次/auth/validate-token请求验证登录状态
+确保实时检测登录状态变化
+
+2.单点登录业务处理：
+当检测到用户在其他浏览器登录时，后端返回"在其他地方登录"的信息
+前端捕获错误，清除本地认证信息，跳转到登录页面并显示单点登录信息提示

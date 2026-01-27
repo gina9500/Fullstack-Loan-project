@@ -25,20 +25,20 @@ const Login = () => {
   // 加载状态，用于显示登录过程中的加载状态
   const [isLoading, setIsLoading] = useState(false);
 
-  // 组件挂载时检查是否有登录错误提示
-  useEffect(() => {
-    // 检查localStorage中是否有登录错误信息
-    const loginError = localStorage.getItem('loginError');
-    if (loginError) {
-      // 设置错误信息
-      setErrors(prev => ({
-        ...prev,
-        submit: loginError
-      }));
-      // 清除localStorage中的错误信息，避免重复显示
-      localStorage.removeItem('loginError');
-    }
-  }, []);
+// 组件挂载时检查是否有登录错误提示
+useEffect(() => {
+  // 检查localStorage中是否有登录错误信息
+  const loginError = localStorage.getItem('loginError');
+  if (loginError) {
+    // 设置错误信息，包括单点登录错误
+    setErrors(prev => ({
+      ...prev,
+      submit: loginError
+    }));
+  }
+  // 无论是否显示，都清除localStorage中的错误信息，避免重复显示
+  localStorage.removeItem('loginError');
+}, []);
 
   /**
    * 处理表单输入变化
@@ -114,8 +114,6 @@ const Login = () => {
     try {
       // 调用登录API获取响应
       const response = await login(formData);
-    
-      console.log("登录响应:", response);
       
       // 检查API返回的success传回来的值
       if (response && response.success === false) {

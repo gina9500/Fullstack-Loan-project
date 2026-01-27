@@ -46,26 +46,36 @@ public class JwtUtils {
                 .compact();
     }
 
-    // 从Token中获取用户ID
+    // 从Token中获取用户ID，添加异常处理
     public String getUserIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
 
-        return claims.getSubject();
+            return claims.getSubject();
+        } catch (Exception e) {
+            logger.error("从Token获取用户ID失败: {}", e.getMessage(), e);
+            throw new RuntimeException("从Token获取用户ID失败", e);
+        }
     }
 
-    // 从Token中获取角色
+    // 从Token中获取角色，添加异常处理
     public String getRoleFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
 
-        return (String) claims.get("role");
+            return (String) claims.get("role");
+        } catch (Exception e) {
+            logger.error("从Token获取角色失败: {}", e.getMessage(), e);
+            throw new RuntimeException("从Token获取角色失败", e);
+        }
     }
 
     // 验证Token
@@ -82,4 +92,17 @@ public class JwtUtils {
         }
     }
 
+    // 从Token中获取Claims，添加异常处理
+    public Claims getClaimsFromToken(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            logger.error("从Token获取Claims失败: {}", e.getMessage(), e);
+            throw new RuntimeException("从Token获取Claims失败", e);
+        }
+    }
 }

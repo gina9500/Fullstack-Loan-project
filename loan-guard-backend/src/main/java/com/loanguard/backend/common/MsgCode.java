@@ -42,7 +42,8 @@ public enum MsgCode {
 
     // JWT相关消息
     TOKEN_MISSING("4011", "Token不存在或格式错误"),
-    TOKEN_INVALID("4012", "Token无效或已过期");
+    TOKEN_INVALID("4012", "Token无效或已过期"),
+    TOKEN_EXPIRED_BY_OTHER_LOGIN("4013", "用户已在其他地方登录，请重新登录");
 
     private final String code;
     private final String message;

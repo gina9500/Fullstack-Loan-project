@@ -18,6 +18,7 @@ import com.loanguard.backend.dto.LoginRequestDTO;
 import com.loanguard.backend.model.User;
 import com.loanguard.backend.service.UserService;
 import com.loanguard.backend.utils.JwtUtils;
+import com.loanguard.backend.utils.TokenStore;
 
 /**
  * 用户控制层
@@ -33,6 +34,9 @@ public class UserController {
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    private TokenStore tokenStore;
 
     @PostMapping("/login")
     public ResponseResult<?> login(@RequestBody LoginRequestDTO loginRequest) {
@@ -58,15 +62,30 @@ public class UserController {
             // 生成JWT Token
             String token = jwtUtils.generateToken(user.getUserId(), user.getRole());
 
+            logger.debug("用户 {} 登录，检查是否存在旧 Token...", user.getUserId());
+            logger.debug("当前 tokenStore 中的 Token: {}", tokenStore.getToken(user.getUserId()));
+            // 检查用户是否已在其他地方登录
+            String existingToken = tokenStore.getToken(user.getUserId());
+            String loginMessage = MsgCode.SUCCESS.getMessage();
+
+            // 如果存在旧Token，提示用户
+            if (existingToken != null) {
+                loginMessage = "当前登录将使原有Token失效";
+                logger.info("用户{}已经在其他地方登录，当前登录将使原有Token失效", user.getUserId());
+            }
+
+            // 保存Token到TokenStore，实现单点登录（新Token会覆盖旧Token）
+            tokenStore.saveToken(user.getUserId(), token);
+
             // 登录成功，返回用户信息和Token
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("role", user.getRole());
             userInfo.put("userId", user.getUserId());
             userInfo.put("token", token);
 
-            logger.error("登录成功,返回用户信息: {}", userInfo);
+            logger.info("登录成功,返回用户信息: {}", userInfo);
 
-            return ResponseResult.success(MsgCode.SUCCESS.getMessage(), userInfo);
+            return ResponseResult.success(loginMessage, userInfo);
 
         } catch (ServiceException e) {
             // 处理业务异常
@@ -77,4 +96,5 @@ public class UserController {
             return ResponseResult.fail(MsgCode.SYSTEM_ERROR.getMessage());
         }
     }
+
 }
