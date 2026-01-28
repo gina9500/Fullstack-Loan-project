@@ -100,7 +100,7 @@ mvn clean install
 
 ###### JWT认证（chenjinjin 20260121~20260303） ADD######
 
-### 1.JWT认证流程：
+### 1.自定义的JWT认证流程：
 
 # 1.1 用户登录的流程：适用于登录接口（/api/user/login）
 
@@ -119,17 +119,20 @@ JwtInterceptor拦截请求，获取Token，验证Token的有效性
 
 # 1.3 核心组件
 
-1.用户登录控制器 (UserController)
-功能：处理用户登录请求，实现参数校验和登录流程控制
-2.JWT工具类 (JwtUtils)
-功能：实现JWT Token的生成、解析和验证
-3.JWT配置属性 (JwtProperties)
-功能：从application.properties中读取JWT配置
-4.JWT拦截器 (JwtInterceptor)
-功能：拦截所有API请求，验证Token的有效性5.配置文件 (application.properties)
-功能：存储JWT相关配置，如密钥和过期时间
-6.web配置类 (WebConfig)
-功能：配置拦截器链，将JwtInterceptor添加到拦截器列表中
+1.JWT工具类 (JwtUtils)
+功能：实现JWT Token的生成、解析和验证。
+
+2.JWT配置属性 (JwtProperties)
+功能：从application.properties中读取JWT配置。
+
+3.JWT拦截器 (JwtInterceptor)
+功能：拦截所有API请求，验证Token的有效性。
+
+4.配置文件 (application.properties)
+功能：存储JWT相关配置，如密钥和过期时间。
+
+5.web配置类 (WebConfig)
+功能：配置拦截器链，将JwtInterceptor添加到拦截器列表中。
 
 # 2.单点登录（No11）
 
