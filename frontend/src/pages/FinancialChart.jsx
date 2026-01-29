@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line } from 'recharts';
 
 // 默认财务数据（当没有外部数据传入时使用）
@@ -13,13 +13,13 @@ const defaultProfitData = [
   { period: '2024.4Q', value: 24762999, yearOnYear: "12.8%", chainRatio: "" }
 ];
 
-const FinancialChart = ({ financialData }) => {
-  const [showYearOnYear, setShowYearOnYear] = useState(false);
-  const [showChainRatio, setShowChainRatio] = useState(false);
-
-  const handleYearOnYearChange = () => setShowYearOnYear(!showYearOnYear);
-  const handleChainRatioChange = () => setShowChainRatio(!showChainRatio);
-
+const FinancialChart = ({ 
+  financialData, 
+  showYearOnYear, 
+  showChainRatio,
+  onYearOnYearChange,
+  onChainRatioChange
+}) => {
   // 后端传入的数据不为空就用传过来的数据，否则用默认数据
   const profitData = financialData && financialData.length > 0 ? financialData : defaultProfitData;
 
@@ -107,7 +107,7 @@ const FinancialChart = ({ financialData }) => {
           <input 
             type="checkbox" 
             checked={showYearOnYear} 
-            onChange={handleYearOnYearChange} 
+            onChange={onYearOnYearChange} 
           />
           同比
         </label>
@@ -115,7 +115,7 @@ const FinancialChart = ({ financialData }) => {
           <input 
             type="checkbox" 
             checked={showChainRatio} 
-            onChange={handleChainRatioChange} 
+            onChange={onChainRatioChange} 
           />
           环比
         </label>

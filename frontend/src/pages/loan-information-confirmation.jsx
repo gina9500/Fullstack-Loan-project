@@ -14,11 +14,28 @@ const LoanInformationConfirmation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  
+  // 添加图表状态管理
+  const [showYearOnYear, setShowYearOnYear] = useState(false);
+  const [showChainRatio, setShowChainRatio] = useState(false);
 
   useEffect(() => {
     // 从localStorage获取申请信息
     const savedData = localStorage.getItem('loanApplication');
     console.log('从localStorage获取的数据:', savedData);
+    
+    // 从localStorage获取图表状态
+    const savedChartState = localStorage.getItem('financialChartState');
+    if (savedChartState) {
+      try {
+        const parsedState = JSON.parse(savedChartState);
+        setShowYearOnYear(parsedState.showYearOnYear || false);
+        setShowChainRatio(parsedState.showChainRatio || false);
+      } catch (err) {
+        console.error('解析图表状态失败:', err);
+      }
+    }
+    
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
@@ -106,43 +123,62 @@ const LoanInformationConfirmation = () => {
     setApplicationData(defaultData);
   };
 
-/**
- * 处理确认提交
- * 将表单数据提交到后端进行DB存储
- */
-const handleConfirm = async () => {
-  setIsSubmitting(true);
-  setError(null);
-  
-  try {
-    // 保存包含文件名的完整数据到localStorage，确保从结果页面返回时能恢复
-    localStorage.setItem('loanApplication', JSON.stringify(applicationData));
+  /**
+   * 处理确认提交
+   * 将表单数据提交到后端进行DB存储
+   */
+  const handleConfirm = async () => {
+    setIsSubmitting(true);
+    setError(null);
     
-    // 调用后端API提交确认的贷款申请数据
-    const response = await submitLoanConfirmation(applicationData);
-    console.log('提交确认结果:', response);
-    
-    // 处理API响应
-    if (response.success) {
-      // 如果成功，使用React Router导航到结果页面，并传递状态信息
-      navigate('/loan-result', { state: { fromButton: true } });
-    } else {
-      // 如果失败，显示错误信息
-      throw new Error(response.message || '提交失败，请稍后重试');
+    try {
+      // 保存包含文件名的完整数据到localStorage，确保从结果页面返回时能恢复
+      localStorage.setItem('loanApplication', JSON.stringify(applicationData));
+      
+      // 调用后端API提交确认的贷款申请数据
+      const response = await submitLoanConfirmation(applicationData);
+      console.log('提交确认结果:', response);
+      
+      // 处理API响应
+      if (response.success) {
+        // 如果成功，使用React Router导航到结果页面，并传递状态信息
+        navigate('/loan-result', { state: { fromButton: true } });
+      } else {
+        // 如果失败，显示错误信息
+        throw new Error(response.message || '提交失败，请稍后重试');
+      }
+    } catch (err) {
+      setError(err.message || '网络错误，请稍后重试');
+    } finally {
+      setIsSubmitting(false);
     }
-  } catch (err) {
-    setError(err.message || '网络错误，请稍后重试');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
 
-const handleBack = () => {
-  // 设置retainData标记，指示需要保留表单数据
-  localStorage.setItem('retainData', 'true');
-  // 使用React Router导航返回企业贷款申请页面，并传递状态信息
-  navigate('/corporation-loan-application', { state: { fromButton: true } });
-};
+  const handleBack = () => {
+    // 设置retainData标记，指示需要保留表单数据
+    localStorage.setItem('retainData', 'true');
+    // 使用React Router导航返回企业贷款申请页面，并传递状态信息
+    navigate('/corporation-loan-application', { state: { fromButton: true } });
+  };
+  
+  // 处理图表状态变化并保存到localStorage
+  const handleYearOnYearChange = () => {
+    const newState = !showYearOnYear;
+    setShowYearOnYear(newState);
+    localStorage.setItem('financialChartState', JSON.stringify({
+      showYearOnYear: newState,
+      showChainRatio
+    }));
+  };
+  
+  const handleChainRatioChange = () => {
+    const newState = !showChainRatio;
+    setShowChainRatio(newState);
+    localStorage.setItem('financialChartState', JSON.stringify({
+      showYearOnYear,
+      showChainRatio: newState
+    }));
+  };
 
 
   if (isLoading) {
@@ -274,8 +310,14 @@ const handleBack = () => {
         </div>
         
         <div className="chart-container">
-          {/* 使用FinancialChart组件并传递财务数据 */}
-          <FinancialChart financialData={financialData} />
+          {/* 使用FinancialChart组件并传递财务数据和状态 */}
+          <FinancialChart 
+            financialData={financialData} 
+            showYearOnYear={showYearOnYear}
+            showChainRatio={showChainRatio}
+            onYearOnYearChange={handleYearOnYearChange}
+            onChainRatioChange={handleChainRatioChange}
+          />
         </div>
       </div>
         
