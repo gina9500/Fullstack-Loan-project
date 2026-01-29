@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from '../pages/login';
 import PersonalLoanApplication from '../pages/personal-loan-application';
+import PersonalLoanResult from '../pages/personal-loan-result';
 import CorporationLoanApplication from '../pages/corporation-loan-application';
 import LoanInformationConfirmation from '../pages/loan-information-confirmation';
 import LoanResult from '../pages/loan-result';
@@ -22,7 +23,18 @@ const AppRoutes = () => {
             <PrivateRoute 
               element={<PersonalLoanApplication />} 
               allowedRoles={['per']} 
-            />
+            /> 
+          } 
+        />
+        
+        {/* 个人贷款结果页面 - 允许个人用户访问 */}
+        <Route 
+          path="/personal-loan-result" 
+          element={
+            <PrivateRoute 
+              element={<PersonalLoanResult />} 
+              allowedRoles={['per']} 
+            /> 
           } 
         />
         
@@ -33,7 +45,7 @@ const AppRoutes = () => {
             <PrivateRoute 
               element={<CorporationLoanApplication />} 
               allowedRoles={['corp']} 
-            />
+            /> 
           } 
         />
         
@@ -44,7 +56,7 @@ const AppRoutes = () => {
             <PrivateRoute 
               element={<LoanInformationConfirmation />} 
               allowedRoles={['corp']} 
-            />
+            /> 
           } 
         />
         
@@ -55,7 +67,7 @@ const AppRoutes = () => {
             <PrivateRoute 
               element={<LoanResult />} 
               allowedRoles={['corp']} 
-            />
+            /> 
           } 
         />
         

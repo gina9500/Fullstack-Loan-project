@@ -1,0 +1,128 @@
+/* 个人贷款结果页面样式 */
+.personal-result-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f2f5;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.personal-result-content {
+  width: 100%;
+  max-width: 600px;
+  background-color: white;
+  padding: 40px;
+  border-radius: 8px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.section-title {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 40px;
+  font-weight: normal;
+  text-align: left;
+}
+
+.result-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.english-title {
+  font-size: 24px;
+  color: #333;
+  font-weight: 600;
+}
+
+.success-label {
+  font-size: 24px;
+  color: #4CAF50;
+  font-weight: 600;
+}
+
+.result-message {
+  text-align: center;
+  font-size: 18px;
+  color: #333;
+}
+
+.result-message p {
+  margin: 10px 0;
+}
+
+.reservation-number {
+  font-size: 20px;
+}
+
+.reservation-number .number {
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .personal-result-content {
+    padding: 30px 20px;
+  }
+  
+  .section-title {
+    font-size: 16px;
+    margin-bottom: 30px;
+  }
+  
+  .result-title {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .english-title {
+    font-size: 20px;
+  }
+  
+  .success-label {
+    font-size: 20px;
+  }
+  
+  .result-message {
+    font-size: 16px;
+  }
+  
+  .reservation-number {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .personal-result-content {
+    padding: 20px 15px;
+  }
+  
+  .section-title {
+    font-size: 15px;
+  }
+  
+  .english-title {
+    font-size: 18px;
+  }
+  
+  .success-label {
+    font-size: 18px;
+  }
+  
+  .result-message {
+    font-size: 15px;
+  }
+  
+  .reservation-number {
+    font-size: 16px;
+  }
+}
