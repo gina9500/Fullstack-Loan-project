@@ -57,8 +57,13 @@ const validateMobile = (mobile) => {
   return mobileRegex.test(mobile);
 };
 
-// 验证日期格式（YYYY/MM/DD）
+// 验证日期格式（YYYY/MM/DD 或 "长期"）
 const validateDate = (date) => {
+  // 允许"长期"作为有效输入
+  if (date === '长期') {
+    return true;
+  }
+  
   const dateRegex = /^\d{4}\/\d{2}\/\d{2}$/;
   if (!dateRegex.test(date)) return false;
   
