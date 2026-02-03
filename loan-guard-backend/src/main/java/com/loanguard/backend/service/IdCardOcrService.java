@@ -11,6 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.baidu.aip.ocr.AipOcr;
 
+/**
+ * 身份证OCR服务类
+ */
 @Service
 public class IdCardOcrService {
 

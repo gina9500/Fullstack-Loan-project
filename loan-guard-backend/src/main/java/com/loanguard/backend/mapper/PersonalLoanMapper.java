@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 import com.loanguard.backend.model.PersonalLoan;
 
+/**
+ * 个人贷款映射器
+ */
 @Mapper
 public interface PersonalLoanMapper {
 

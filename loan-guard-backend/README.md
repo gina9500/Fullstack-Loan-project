@@ -154,9 +154,35 @@ JwtInterceptor.java - #preHandle 检查Token是否为当前有效Token（单点�
 系统通过TokenStore组件实现单点登录，维护一个用户与当前有效Token的映射关系
 用户每次登录生成新Token并覆盖旧Token，请求验证时检查Token是否为当前有效Token
 
-#### 身份证OCR自动识别
+# 3.身份证OCR自动识别
 
-用户上传身份证正反面图片。
-后端调用 OCR 接口读取姓名、身份证号、出生年月、有效期。
-将识别结果自动填充到前端表单中。
-提交时通过“个人数据登录 API”存入数据库并生成唯一 11 位预约号。
+核心实现：
+
+用户上传身份证正反面图片
+后端通过PersonalLoanController.recognizeIdCard接口（/api/loan/personal/ocr）处理
+调用百度OCR API进行文字识别
+识别结果自动填充到前端表单
+
+识别内容：
+身份证正面：姓名、身份证号码、出生日期、身份证有效期等
+身份证反面：身份证有效期
+
+技术细节：
+使用IdCardOcrService.java封装OCR识别逻辑
+支持JPG格式图片
+对识别结果进行格式处理
+提供多重身份识别号提取机制，确保识别准确性
+
+# 4.贷款申请提交功能
+
+核心实现：
+
+用户确认表单信息后提交
+后端通过PersonalLoanController.submitPersonalLoan接口（/api/loan/personal/submit）处理
+调用PersonalLoanService.submitPersonalLoan保存申请
+
+处理流程：
+检查用户是否已存在贷款申请记录（根据用户ID查询，不存在则创建，存在则更新）
+生成唯一11位预约号（规则：年份后两位 + 月份 + 日期 + 5位随机数）
+保存/更新到personal_loan_application表
+返回提交结果和预约号

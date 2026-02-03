@@ -2,6 +2,9 @@ package com.loanguard.backend.model;
 
 import lombok.Data;
 
+/**
+ * 个人贷款实体类
+ */
 @Data
 public class PersonalLoan {
     private Long id;

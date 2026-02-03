@@ -18,9 +18,9 @@ const unformatDate = (dateString) => {
   return dateString.replace(/\//g, '');
 };
 
-// 手动输入日期格式化函数：自动添加斜杠分隔符
+// 手动输入日期格式化函数：自动添加斜杠分隔符（只处理数字日期，不支持"长期"）
 const formatManualDateInput = (input) => {
-  // 移除非数字字符
+
   const numericValue = input.replace(/\D/g, '');
   
   // 如果输入不足4位，直接返回
@@ -214,21 +214,33 @@ const PersonalLoanApplication = () => {
     }
   };
 
-  // 处理表单字段变化
-  const handleInputChange = (e) => {
-    const { id, value } = e.target;
-    
-    // 特殊处理日期字段的格式化
-    if (id === 'birthday' || id === 'idCardExpiryDate') {
-      const formattedDate = formatManualDateInput(value);
-      setFormData(prev => ({...prev, [id]: formattedDate}));
-    } else {
-      setFormData(prev => ({...prev, [id]: value}));
-    }
-    
-    // 实时验证
-    validateField(id, value);
-  };
+// 处理表单字段变化
+const handleInputChange = (e) => {
+  const { id, value } = e.target;
+  
+  // 特殊处理身份证有效期字段，如果输入"长期"，直接保存而不格式化
+  if (id === 'idCardExpiryDate' && value === '长期') {
+    setFormData(prev => ({...prev, [id]: value}));
+  } 
+  // 身份证有效期的数字输入，进行格式化处理
+  else if (id === 'idCardExpiryDate') {
+    const formattedDate = formatManualDateInput(value);
+    setFormData(prev => ({...prev, [id]: formattedDate}));
+  }
+  // 生日字段，进行格式化处理（移除"长期"文本）
+  else if (id === 'birthday') {
+    const sanitizedValue = value.replace(/长期/g, '');
+    const formattedDate = formatManualDateInput(sanitizedValue);
+    setFormData(prev => ({...prev, [id]: formattedDate}));
+  }
+  // 非日期字段，直接保存
+  else {
+    setFormData(prev => ({...prev, [id]: value}));
+  }
+  
+  // 实时验证
+  validateField(id, value);
+};
 
   // 验证单个字段
   const validateField = (fieldId, value) => {
@@ -352,6 +364,7 @@ const handleSubmit = async (e) => {
             placeholder="" 
             value={formData.name}
             onChange={handleInputChange}
+            readOnly
           /> 
           {fieldErrors.name && <div className="per-error-message">{fieldErrors.name}</div>}
         </div> 
@@ -365,6 +378,7 @@ const handleSubmit = async (e) => {
             placeholder="" 
             value={formData.idNumber}
             onChange={handleInputChange}
+            readOnly
           /> 
           {fieldErrors.idNumber && <div className="per-error-message">{fieldErrors.idNumber}</div>}
         </div> 
@@ -378,6 +392,7 @@ const handleSubmit = async (e) => {
             placeholder="年 / 月 / 日" 
             value={formData.birthday}
             onChange={handleInputChange}
+            readOnly
           /> 
           {fieldErrors.birthday && <div className="per-error-message">{fieldErrors.birthday}</div>}
         </div> 
@@ -391,6 +406,7 @@ const handleSubmit = async (e) => {
             placeholder="年 / 月 / 日" 
             value={formData.idCardExpiryDate}
             onChange={handleInputChange}
+            readOnly
           /> 
           {fieldErrors.idCardExpiryDate && <div className="per-error-message">{fieldErrors.idCardExpiryDate}</div>}
         </div> 

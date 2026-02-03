@@ -16,6 +16,9 @@ import com.loanguard.backend.dto.PersonalLoanRequestDTO;
 import com.loanguard.backend.service.PersonalLoanService;
 import com.loanguard.backend.utils.SessionUtils;
 
+/**
+ * 个人贷款控制器
+ */
 @RestController
 @RequestMapping("/api/loan")
 public class PersonalLoanController {

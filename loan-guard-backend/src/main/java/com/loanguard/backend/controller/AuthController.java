@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/*
+ * 认证控制器(jwt相关)
+*/
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {

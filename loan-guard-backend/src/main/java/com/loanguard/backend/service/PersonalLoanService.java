@@ -14,6 +14,9 @@ import com.loanguard.backend.dto.PersonalLoanRequestDTO;
 import com.loanguard.backend.mapper.PersonalLoanMapper;
 import com.loanguard.backend.model.PersonalLoan;
 
+/**
+ * 个人贷款服务类
+ */
 @Service
 public class PersonalLoanService {
 

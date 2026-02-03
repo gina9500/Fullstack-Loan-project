@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 
 import com.baidu.aip.ocr.AipOcr;
 
+/*
+ * 配置类，用于加载百度OCR的配置信息
+*/
 @Configuration
 @ConfigurationProperties(prefix = "baidu.ocr")
 public class OcrConfig {
