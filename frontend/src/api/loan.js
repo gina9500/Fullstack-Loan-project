@@ -64,4 +64,44 @@ async function submitLoanConfirmation(applicationData) {
   return post(url, applicationData);
 }
 
+/**
+ * 提交个人贷款申请
+ * @param {Object} data - 个人贷款申请数据
+ * @returns {Promise} - 返回Promise对象
+ */
+export async function submitPersonalLoan(data) {
+  // 创建FormData对象
+  const formData = new FormData();
+  
+  // 将表单所有字段单独添加到FormData
+  formData.append('name', data.name);
+  formData.append('idNumber', data.idNumber);
+  formData.append('birthDate', data.birthday);
+  formData.append('idCardExpiryDate', data.idCardExpiryDate);
+  formData.append('mobileNo', data.mobileNo);
+  formData.append('email', data.email);
+  
+  // 调试信息
+  console.log('提交个人贷款FormData对象到后端');
+  for (const [key, value] of formData.entries()) {
+    console.log(`${key}: ${value instanceof File ? value.name : value}`);
+  }
+  
+  try {
+    // 使用request.js中的post函数发送请求，这样可以正确处理FormData
+    const response = await post('/loan/personal/submit', formData);
+    
+    console.log('后端返回响应:', response);
+    
+    return response;
+  } catch (error) {
+    if (error.message.includes('Failed to fetch')) {
+      // 错误的特殊处理
+      console.error('后端连接失败，请检查');
+      throw new Error('无法连接到后端服务');
+    }
+    throw error;
+  }
+}
+
 export { submitLoanConfirmation };

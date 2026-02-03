@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS user (
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-drop table corporation_loan_application;
 -- 创建企业贷款申请表
 CREATE TABLE IF NOT EXISTS corporation_loan_application (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -30,13 +29,33 @@ CREATE TABLE IF NOT EXISTS corporation_loan_application (
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
+-- 创建个人贷款申请表
+CREATE TABLE IF NOT EXISTS personal_loan_application (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(50) NOT NULL COMMENT '关联用户ID',
+    name VARCHAR(50) NOT NULL COMMENT '姓名',
+    id_number VARCHAR(18) NOT NULL COMMENT '身份证号码',
+    birth_date VARCHAR(20) NOT NULL COMMENT '出生日期',
+    id_card_expiry_date VARCHAR(20) NOT NULL COMMENT '身份证有效期',
+    mobile_no VARCHAR(20) NOT NULL COMMENT '手机号码',
+    email VARCHAR(100) NOT NULL COMMENT '邮箱',
+    appointment_no VARCHAR(11) NOT NULL UNIQUE COMMENT '11位预约号',
+    status VARCHAR(20) DEFAULT 'pending' COMMENT '状态',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (user_id) REFERENCES user(user_id)
+);
 -- 插入测试用户数据
 INSERT INTO user (user_id, password, role)
-VALUES ('user1', 'user1234', 'corporation'),
-    ('user2', 'user1234', 'personal');
+VALUES ('user', 'user1234', 'corporation');
 -- 查询用户表
 select *
 from user;
 -- 查询企业贷款表
 select *
 from corporation_loan_application;
+-- 查询个人贷款表
+select *
+from personal_loan_application;
+-- 删除企业贷款表
+delete from personal_loan_application;

@@ -31,7 +31,7 @@ async function request(url, options = {}) {
     const timeoutPromise = new Promise((_, reject) => { 
       setTimeout(() => { 
         reject(new Error('请求超时，请稍后重试')); 
-      }, 30000); 
+      }, 300000); 
     }); 
     
     // 使用Promise.race实现超时处理 
@@ -180,5 +180,17 @@ export function post(url, data = {}, options = {}) {
     return request(url, standardOptions); 
   } 
 } 
+
+/**
+ * 上传文件
+ * @param {string} url - 请求地址
+ * @param {FormData} data - 表单数据
+ * @param {Object} options - 附加选项
+ * @returns {Promise} - 返回Promise对象
+ */
+export function upload(url, data, options = {}) {
+  // 直接使用post函数处理文件上传
+  return post(url, data, options);
+}
 
 export default request;
